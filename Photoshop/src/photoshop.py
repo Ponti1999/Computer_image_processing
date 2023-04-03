@@ -80,25 +80,34 @@ class App(customtkinter.CTk):
         # Right sidebar
         self.right_sidebar_frame = customtkinter.CTkFrame(master=self, width=200, height=WINDOW_HIGH)
         self.right_sidebar_frame.grid(row=0, column=2, rowspan=3, sticky="nsew")
-        self.right_sidebar_frame.grid_rowconfigure(7, weight=1)
+        self.right_sidebar_frame.grid_rowconfigure(10, weight=1)
 
-        self.right_button_0 = customtkinter.CTkButton(self.right_sidebar_frame, text="Uniform filtered" ,command=self.uniform_filtered)
+        self.right_button_0 = customtkinter.CTkButton(self.right_sidebar_frame, text="Negate" ,command=self.monitor_performance(self.negate_filter))
         self.right_button_0.grid(row=0, column=2, padx=20, pady=(20, 10), sticky="nsew")
 
-        self.right_button_1 = customtkinter.CTkButton(self.right_sidebar_frame, text="Gaussian filtered" ,command=self.gaussian_filtered)
+        self.right_button_1 = customtkinter.CTkButton(self.right_sidebar_frame, text="Gamma correction" ,command=self.monitor_performance(self.gamma_correction_filter))
         self.right_button_1.grid(row=1, column=2, padx=20, pady=(20, 10), sticky="nsew")
 
-        self.right_button_2 = customtkinter.CTkButton(self.right_sidebar_frame, text="Median filtered" ,command=self.median_filtered)
+        self.right_button_2 = customtkinter.CTkButton(self.right_sidebar_frame, text="Logarithmic correction" ,command=self.monitor_performance(self.log_transformation_filter))
         self.right_button_2.grid(row=2, column=2, padx=20, pady=(20, 10), sticky="nsew")
 
-        self.right_button_3 = customtkinter.CTkButton(self.right_sidebar_frame, text="Sobel filtered" ,command=self.sobel_filtered)
+        self.right_button_3 = customtkinter.CTkButton(self.right_sidebar_frame, text="Gray transformation" ,command=self.monitor_performance(self.gray_filter))
         self.right_button_3.grid(row=3, column=2, padx=20, pady=(20, 10), sticky="nsew")
 
-        self.right_button_4 = customtkinter.CTkButton(self.right_sidebar_frame, text="Negal" ,command=self.monitor_performance(self.negal_filter))
-        self.right_button_4.grid(row=4, column=2, padx=20, pady=(20, 10), sticky="ns")
+        self.right_button_4 = customtkinter.CTkButton(self.right_sidebar_frame, text="Histogram create" ,command=self.monitor_performance(self.histogram_maker))
+        self.right_button_4.grid(row=4, column=2, padx=20, pady=(20, 10), sticky="nsew")
 
-        self.right_button_5 = customtkinter.CTkButton(self.right_sidebar_frame, text="Gamma correction" ,command=self.monitor_performance(self.gamma_correction_filter))
-        self.right_button_5.grid(row=5, column=2, padx=20, pady=(20, 10), sticky="ns")
+        self.right_button_5 = customtkinter.CTkButton(self.right_sidebar_frame, text="Histogram Equalization" ,command=self.monitor_performance(self.histogram_equalization))
+        self.right_button_5.grid(row=5, column=2, padx=20, pady=(20, 10), sticky="nsew")
+
+        self.right_button_6 = customtkinter.CTkButton(self.right_sidebar_frame, text="      " )
+        self.right_button_6.grid(row=6, column=2, padx=20, pady=(20, 10), sticky="nsew")
+
+        self.right_label = customtkinter.CTkLabel(self.right_sidebar_frame, text="Value: ")
+        self.right_label.grid(row=9, column=2, padx=10, pady=10, sticky="w")
+        self.right_entry = customtkinter.CTkEntry(self.right_sidebar_frame, width=75)
+        self.right_entry.grid(row=9, column=2, padx=10, sticky="e")
+
 
 
     def display_image_function(self, *args):
@@ -175,14 +184,13 @@ class App(customtkinter.CTk):
         plt.imshow(self.deconvolved, cmap='Greys')
         plt.show()
 
-    def negal_filter(self):
+    def negate_filter(self):
         self.img = img_as_ubyte(io.imread(PATH + self.image_choice.get(), as_gray=True))
-        self.negal = 255 - self.img
+        self.negate_filter = 255 - self.img
         self.image_file_name = self.image_choice.get().split('.')[0]
-        self.plot_image(self.img, title='Original', image_name='_'.join([self.image_file_name,'original.png']))
-        self.plot_image(self.negal, title='Negal', image_name='_'.join([self.image_file_name,'negal.png']))
-        self.image_open = Image.open(PATH + self.image_file_name + '_negal.png')
-        self.display_image_function(''.join([PATH, self.image_file_name, '_negal.png']))
+        # self.plot_image(self.img, title='Original', image_name='_'.join([self.image_file_name,'original.png']))
+        self.plot_image(self.negate_filter, title='Negate', image_name='_'.join([self.image_file_name,'negate.png']))
+        self.display_image_function(''.join([PATH, self.image_file_name, '_negate.png']))
 
 
     def gamma_correction_filter(self):
@@ -190,13 +198,123 @@ class App(customtkinter.CTk):
         ## Then, we raise this normalized pixel value to the power of the gamma value.
         ## Finally, we scale the gamma-corrected value back to the 8-bit range by multiplying with the maximum pixel value,
         ## Since we are using 8-bit images, the maximum pixel value is 255. We need to round the the gamma-corrected pixel value to the nearest integer.
-        gamma = 0.5
+        self.gamma = 0.5
+        if self.right_entry.get():
+            self.gamma = float(self.right_entry.get())
         self.img = img_as_ubyte(io.imread(PATH + self.image_choice.get(), as_gray=True))
-        self.gamma_corrected = (self.img / 255) ** gamma * 255
+        self.gamma_corrected = (self.img / 255) ** self.gamma * 255
         self.image_file_name = self.image_choice.get().split('.')[0]
-        self.plot_image(self.img, title='Original', image_name='_'.join([self.image_file_name,'original.png']))
+        # self.plot_image(self.img, title='Original', image_name='_'.join([self.image_file_name,'original.png']))
         self.plot_image(self.gamma_corrected, title='Gamma corrected', image_name='_'.join([self.image_file_name,'gamma_corrected.png']))
         self.display_image_function(''.join([PATH, self.image_file_name, '_gamma_corrected.png']))
+
+    def log_transformation_filter(self):
+        ## s = c * log(1 + r)
+        self.c = 5
+        if self.right_entry.get():
+            self.c = float(self.right_entry.get())
+        self.img = img_as_ubyte(io.imread(PATH + self.image_choice.get(), as_gray=True))
+        self.log_corrected = self.c * np.log(1 + self.img)
+        self.image_file_name = self.image_choice.get().split('.')[0]
+        # self.plot_image(self.img, title='Original', image_name='_'.join([self.image_file_name,'original.png']))
+        self.plot_image(self.log_corrected, title='Logarithmic transformation', image_name='_'.join([self.image_file_name,'logarithmic_corrected.png']))
+        self.display_image_function(''.join([PATH, self.image_file_name, '_logarithmic_corrected.png']))
+
+    def gray_filter(self):
+        self.gamma = 1
+        if self.right_entry.get():
+            self.gamma = float(self.right_entry.get())
+        self.img = img_as_ubyte(io.imread(PATH + self.image_choice.get(), as_gray=False))
+
+        # Get the dimensions of the image
+        height, width, channels = self.img.shape
+
+        # Create a new 2D array to store the grayscale image
+        self.img_gray = np.zeros((height, width), dtype=np.uint8)
+
+        for y in range(height):
+            for x in range(width):
+                # Get the pixel value of each color channel
+                r, g, b = self.img[y, x]
+
+                # Apply gamma correction to each channel
+                r_corrected = int((r / 255.0) ** self.gamma * 255.0)
+                g_corrected = int((g / 255.0) ** self.gamma * 255.0)
+                b_corrected = int((b / 255.0) ** self.gamma * 255.0)
+
+                # Calculate the grayscale value of the pixel
+                self.gray_value = int((r_corrected + g_corrected + b_corrected) / 3)
+
+                # Formula for luminance, which is a weighted sum of the color channels.
+                # The weights used in the formula are based on the sensitivity of the human eye to different colors.
+                # self.gray_value = int(0.2126 * r_corrected + 0.7152 * g_corrected + 0.0722 * b_corrected)
+
+                # The weights used are 0.3, 0.59, and 0.11, which are commonly used values that give a pleasing result for most images.
+                # self.gray_value = int(0.3 * r_corrected + 0.59 * g_corrected + 0.11 * b_corrected)
+
+                # Set the grayscale value in the img_gray array
+                self.img_gray[y, x] = self.gray_value
+
+        self.image_file_name = self.image_choice.get().split('.')[0]
+        # self.plot_image(self.img, title='Original', image_name='_'.join([self.image_file_name,'original.png']))
+        self.plot_image(self.img_gray, title='Logarithmic transformation', image_name='_'.join([self.image_file_name,'gray.png']))
+        self.display_image_function(''.join([PATH, self.image_file_name, '_gray.png']))
+
+    def histogram_maker(self):
+        self.img = img_as_ubyte(io.imread(PATH + self.image_choice.get(), as_gray=True))
+        self.img_min, self.img_max = self.img.min(), self.img.max()
+        # Create an empty dictionary to store pixel value counts
+        self.counts = {}
+
+        # Loop over each pixel in the image and increment the count for the corresponding pixel value
+        for i in range(self.img.shape[0]):
+            for j in range(self.img.shape[1]):
+                pixel_value = self.img[i,j]
+                if pixel_value in self.counts:
+                    self.counts[pixel_value] += 1
+                else:
+                    self.counts[pixel_value] = 1
+
+        # Convert the dictionary to two lists: pixel values and counts
+        self.pixel_values = list(self.counts.keys())
+        self.counts_list = list(self.counts.values())
+
+        plt.xlabel("Pixel Values")
+        plt.ylabel("Frequency")
+        plt.bar(self.pixel_values, self.counts_list)
+        self.image_file_name = self.image_choice.get().split('.')[0]
+        self.image_path = ''.join([PATH, self.image_file_name,'_histogram.png'])
+        plt.savefig(self.image_path)
+        self.display_image_function(''.join([PATH, self.image_file_name, '_histogram.png']))
+
+    def histogram_equalization(self):
+        self.img = img_as_ubyte(io.imread(PATH + self.image_choice.get(), as_gray=True))
+
+        self.hist, self.bins = np.histogram(self.img, bins=256, range=(self.img.min(), self.img.max()))
+
+
+        cdf = self.hist.cumsum()
+        cdf_normalized = cdf / cdf.max()
+        cdf_mapped = np.round(cdf_normalized * 255).astype(np.uint8)
+
+        # Map each pixel value to its new value using the CDF
+        img_equalized = np.interp(self.img.flatten(), self.bins[:-1], cdf_mapped)
+
+        # Reshape the equalized image and convert it back to 8-bit unsigned integer
+        img_equalized = img_equalized.reshape(self.img.shape).astype(np.uint8)
+
+        # Display the original and equalized images side by side
+        fig, axes = plt.subplots(1, 2, figsize=(10, 5))
+        fig.subplots_adjust(left=0.05, right=0.95, bottom=0.1, top=0.9, wspace=0.2)
+        axes[0].imshow(self.img, cmap='gray')
+        axes[0].set_title('Original Image')
+        axes[1].imshow(img_equalized, cmap='gray')
+        axes[1].set_title('Equalized Image')
+
+        self.image_file_name = self.image_choice.get().split('.')[0]
+        self.image_path = ''.join([PATH, self.image_file_name,'_equalization.png'])
+        plt.savefig(self.image_path)
+        self.display_image_function(''.join([PATH, self.image_file_name, '_equalization.png']))
 
 
     def monitor_performance(self, func):
