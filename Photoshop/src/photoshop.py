@@ -188,8 +188,8 @@ class App(customtkinter.CTk):
         self.img = img_as_ubyte(io.imread(PATH + self.image_choice.get(), as_gray=True))
         self.negate_filter = 255 - self.img
         self.image_file_name = self.image_choice.get().split('.')[0]
-        # self.plot_image(self.img, title='Original', image_name='_'.join([self.image_file_name,'original.png']))
-        self.plot_image(self.negate_filter, title='Negate', image_name='_'.join([self.image_file_name,'negate.png']))
+        # self.plot_image(self.img, image_name='_'.join([self.image_file_name,'original.png']))
+        self.plot_image(self.negate_filter, image_name='_'.join([self.image_file_name,'negate.png']))
         self.display_image_function(''.join([PATH, self.image_file_name, '_negate.png']))
 
 
@@ -204,8 +204,8 @@ class App(customtkinter.CTk):
         self.img = img_as_ubyte(io.imread(PATH + self.image_choice.get(), as_gray=True))
         self.gamma_corrected = (self.img / 255) ** self.gamma * 255
         self.image_file_name = self.image_choice.get().split('.')[0]
-        # self.plot_image(self.img, title='Original', image_name='_'.join([self.image_file_name,'original.png']))
-        self.plot_image(self.gamma_corrected, title='Gamma corrected', image_name='_'.join([self.image_file_name,'gamma_corrected.png']))
+        # self.plot_image(self.img, image_name='_'.join([self.image_file_name,'original.png']))
+        self.plot_image(self.gamma_corrected,  image_name='_'.join([self.image_file_name,'gamma_corrected.png']))
         self.display_image_function(''.join([PATH, self.image_file_name, '_gamma_corrected.png']))
 
     def log_transformation_filter(self):
@@ -216,8 +216,8 @@ class App(customtkinter.CTk):
         self.img = img_as_ubyte(io.imread(PATH + self.image_choice.get(), as_gray=True))
         self.log_corrected = self.c * np.log(1 + self.img)
         self.image_file_name = self.image_choice.get().split('.')[0]
-        # self.plot_image(self.img, title='Original', image_name='_'.join([self.image_file_name,'original.png']))
-        self.plot_image(self.log_corrected, title='Logarithmic transformation', image_name='_'.join([self.image_file_name,'logarithmic_corrected.png']))
+        # self.plot_image(self.img, image_name='_'.join([self.image_file_name,'original.png']))
+        self.plot_image(self.log_corrected, image_name='_'.join([self.image_file_name,'logarithmic_corrected.png']))
         self.display_image_function(''.join([PATH, self.image_file_name, '_logarithmic_corrected.png']))
 
     def gray_filter(self):
@@ -255,12 +255,28 @@ class App(customtkinter.CTk):
                 # Set the grayscale value in the img_gray array
                 self.img_gray[y, x] = self.gray_value
 
+
+        # self.image_file_name = self.image_choice.get().split('.')[0]
+
+        fig, axes = plt.subplots(1, 2, figsize=(10, 5), facecolor='none')
+        fig.subplots_adjust(left=0.05, right=0.95, bottom=0.1, top=0.9, wspace=0.2)
+
+        axes[0].imshow(self.img)
+        axes[1].imshow(self.img_gray, cmap='gray')
+        axes[0].axis('off')
+        axes[1].axis('off')
+        axes[0].set_title('')
+        axes[1].set_title('')
         self.image_file_name = self.image_choice.get().split('.')[0]
-        # self.plot_image(self.img, title='Original', image_name='_'.join([self.image_file_name,'original.png']))
-        self.plot_image(self.img_gray, title='Logarithmic transformation', image_name='_'.join([self.image_file_name,'gray.png']))
+        self.image_path = ''.join([PATH, self.image_file_name,'_gray.png'])
+        plt.savefig(self.image_path)
+
+        self.plot_image(self.img_gray, image_name='_'.join([self.image_file_name,'gray_only.png']))
         self.display_image_function(''.join([PATH, self.image_file_name, '_gray.png']))
 
+
     def histogram_maker(self):
+        print('Path: ', PATH + self.image_choice.get())
         self.img = img_as_ubyte(io.imread(PATH + self.image_choice.get(), as_gray=True))
         self.img_min, self.img_max = self.img.min(), self.img.max()
         # Create an empty dictionary to store pixel value counts
@@ -282,6 +298,10 @@ class App(customtkinter.CTk):
         plt.xlabel("Pixel Values")
         plt.ylabel("Frequency")
         plt.bar(self.pixel_values, self.counts_list)
+        plt.xlabel("Pixel Values")
+        plt.ylabel("Frequency")
+        plt.bar(self.pixel_values, self.counts_list)
+
         self.image_file_name = self.image_choice.get().split('.')[0]
         self.image_path = ''.join([PATH, self.image_file_name,'_histogram.png'])
         plt.savefig(self.image_path)
@@ -298,22 +318,25 @@ class App(customtkinter.CTk):
         cdf_mapped = np.round(cdf_normalized * 255).astype(np.uint8)
 
         # Map each pixel value to its new value using the CDF
-        img_equalized = np.interp(self.img.flatten(), self.bins[:-1], cdf_mapped)
+        self.img_equalized = np.interp(self.img.flatten(), self.bins[:-1], cdf_mapped)
 
         # Reshape the equalized image and convert it back to 8-bit unsigned integer
-        img_equalized = img_equalized.reshape(self.img.shape).astype(np.uint8)
+        self.img_equalized = self.img_equalized.reshape(self.img.shape).astype(np.uint8)
 
         # Display the original and equalized images side by side
-        fig, axes = plt.subplots(1, 2, figsize=(10, 5))
+        fig, axes = plt.subplots(1, 2, figsize=(10, 5), facecolor='none')
         fig.subplots_adjust(left=0.05, right=0.95, bottom=0.1, top=0.9, wspace=0.2)
         axes[0].imshow(self.img, cmap='gray')
-        axes[0].set_title('Original Image')
-        axes[1].imshow(img_equalized, cmap='gray')
-        axes[1].set_title('Equalized Image')
+        axes[1].imshow(self.img_equalized, cmap='gray')
+        axes[0].axis('off')
+        axes[1].axis('off')
+        axes[0].set_title('')
+        axes[1].set_title('')
 
         self.image_file_name = self.image_choice.get().split('.')[0]
         self.image_path = ''.join([PATH, self.image_file_name,'_equalization.png'])
         plt.savefig(self.image_path)
+        self.plot_image(self.img_equalized, image_name='_'.join([self.image_file_name,'equalization_only.png']))
         self.display_image_function(''.join([PATH, self.image_file_name, '_equalization.png']))
 
 
@@ -333,8 +356,7 @@ class App(customtkinter.CTk):
 
 
 
-    def plot_image(self, image, cmap_value:str = 'Greys_r', title: str = '', image_name:str = ''):
-        plt.title(title)
+    def plot_image(self, image, cmap_value:str = 'Greys_r', image_name:str = ''):
         image_name = PATH + image_name
         plt.imsave(image_name, image, cmap=cmap_value)
 
