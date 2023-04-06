@@ -124,7 +124,7 @@ class App(customtkinter.CTk):
             self.image_resized = self.image_open.resize((int(float(self.image_entry_x.get())), int(float(self.image_entry_y.get()))), Image.ANTIALIAS)
             self.image = ImageTk.PhotoImage(self.image_resized)
             self.main_display.configure(anchor="center", image=self.image)
-            self.delete_image_size()
+            # self.delete_image_size()
         except Exception as e:
             print(e)
 
@@ -133,64 +133,24 @@ class App(customtkinter.CTk):
         self.image_entry_y.delete(0, customtkinter.END)
 
 
-    def login(self):
-        print("Login button clicked")
-
-    def uniform_filtered(self):
-        self.img = img_as_ubyte(io.imread(PATH + self.image_choice.get(), as_gray=True))
-        self.uniform_filter = unsharp_mask(self.img)
-        print(f'Image shape: {self.img.shape}, mean: {self.img.mean()}, max: {self.img.max()}, min: {self.img.min()}')
-        with open(PATH + 'image.txt', 'w') as f:
-            for item in self.img:
-                f.writelines(str(item))
-        # print(self.uniform_filter)
-        plt.imshow(self.uniform_filter, cmap='Greys')
-        plt.show()
-
-    def gaussian_filtered(self):
-        self.img = img_as_ubyte(io.imread(PATH + self.image_choice.get(), as_gray=True))
-        self.gaussian_filter = gaussian(self.img, sigma=GAUSSIAN_FILTERED_SIGMA)
-        plt.imshow(self.gaussian_filter, cmap='Greys')
-        plt.show()
-
-    def median_filtered(self):
-        self.img = img_as_ubyte(io.imread(PATH + self.image_choice.get(), as_gray=False))
-        self.median_filter = median(self.img)
-        plt.imshow(self.median_filter)
-        plt.show()
-
-    def sobel_filtered(self):
-        self.img = img_as_ubyte(io.imread(PATH + self.image_choice.get(), as_gray=False))
-        self.sobel_filter = sobel(self.img)
-        plt.imshow(self.sobel_filter)
-        plt.show()
-
-    def roberts_filter(self):
-        self.img = img_as_ubyte(io.imread(PATH + self.image_choice.get(), as_gray=True))
-        self.roberts = roberts(self.img)
-        plt.imshow(self.roberts, cmap='Greys')
-        plt.show()
-
-    def canny_edge_filter(self):
-        self.img = img_as_ubyte(io.imread(PATH + self.image_choice.get(), as_gray=True))
-        self.canny_edge = canny(self.img)
-        plt.imshow(self.canny_edge, cmap='Greys')
-        plt.show()
-
-    def deconvolution_filter(self):
-        self.psf = np.ones((3, 3)) / 9
-        self.img = img_as_ubyte(io.imread(PATH + self.image_choice.get(), as_gray=True))
-        self.deconvolved = restoration.unsupervised_wiener(self.img, self.psf)
-        plt.imshow(self.deconvolved, cmap='Greys')
-        plt.show()
-
     def negate_filter(self):
         self.img = img_as_ubyte(io.imread(PATH + self.image_choice.get(), as_gray=True))
         self.negate_filter = 255 - self.img
+
+        fig, axes = plt.subplots(1, 2, figsize=(10, 5), facecolor='none')
+        fig.subplots_adjust(left=0.05, right=0.95, bottom=0.1, top=0.9, wspace=0.2)
+        axes[0].imshow(self.img)
+        axes[1].imshow(self.gamma_corrected, cmap='gray')
+        axes[0].axis('off')
+        axes[1].axis('off')
+        axes[0].set_title('')
+        axes[1].set_title('')
         self.image_file_name = self.image_choice.get().split('.')[0]
-        # self.plot_image(self.img, image_name='_'.join([self.image_file_name,'original.png']))
-        self.plot_image(self.negate_filter, image_name='_'.join([self.image_file_name,'negate.png']))
-        self.display_image_function(''.join([PATH, self.image_file_name, '_negate.png']))
+        self.image_path = ''.join([PATH, self.image_file_name,'_negate.png'])
+        plt.savefig(self.image_path)
+
+        self.plot_image(self.negate_filter, image_name='_'.join([self.image_file_name,'negate_only.png']))
+        self.display_image_function(''.join([PATH, self.image_file_name, '_negate_only.png']))
 
 
     def gamma_correction_filter(self):
@@ -203,10 +163,21 @@ class App(customtkinter.CTk):
             self.gamma = float(self.right_entry.get())
         self.img = img_as_ubyte(io.imread(PATH + self.image_choice.get(), as_gray=True))
         self.gamma_corrected = (self.img / 255) ** self.gamma * 255
+
+        fig, axes = plt.subplots(1, 2, figsize=(10, 5), facecolor='none')
+        fig.subplots_adjust(left=0.05, right=0.95, bottom=0.1, top=0.9, wspace=0.2)
+        axes[0].imshow(self.img)
+        axes[1].imshow(self.gamma_corrected, cmap='gray')
+        axes[0].axis('off')
+        axes[1].axis('off')
+        axes[0].set_title('')
+        axes[1].set_title('')
         self.image_file_name = self.image_choice.get().split('.')[0]
-        # self.plot_image(self.img, image_name='_'.join([self.image_file_name,'original.png']))
-        self.plot_image(self.gamma_corrected,  image_name='_'.join([self.image_file_name,'gamma_corrected.png']))
-        self.display_image_function(''.join([PATH, self.image_file_name, '_gamma_corrected.png']))
+        self.image_path = ''.join([PATH, self.image_file_name,'_gamma_corrected.png'])
+        plt.savefig(self.image_path)
+
+        self.plot_image(self.gamma_corrected,  image_name='_'.join([self.image_file_name,'gamma_corrected_only.png']))
+        self.display_image_function(''.join([PATH, self.image_file_name, '_gamma_corrected_only.png']))
 
     def log_transformation_filter(self):
         ## s = c * log(1 + r)
@@ -215,10 +186,21 @@ class App(customtkinter.CTk):
             self.c = float(self.right_entry.get())
         self.img = img_as_ubyte(io.imread(PATH + self.image_choice.get(), as_gray=True))
         self.log_corrected = self.c * np.log(1 + self.img)
+
+        fig, axes = plt.subplots(1, 2, figsize=(10, 5), facecolor='none')
+        fig.subplots_adjust(left=0.05, right=0.95, bottom=0.1, top=0.9, wspace=0.2)
+        axes[0].imshow(self.img)
+        axes[1].imshow(self.log_corrected, cmap='gray')
+        axes[0].axis('off')
+        axes[1].axis('off')
+        axes[0].set_title('')
+        axes[1].set_title('')
         self.image_file_name = self.image_choice.get().split('.')[0]
-        # self.plot_image(self.img, image_name='_'.join([self.image_file_name,'original.png']))
-        self.plot_image(self.log_corrected, image_name='_'.join([self.image_file_name,'logarithmic_corrected.png']))
-        self.display_image_function(''.join([PATH, self.image_file_name, '_logarithmic_corrected.png']))
+        self.image_path = ''.join([PATH, self.image_file_name,'_logarithmic_corrected.png'])
+        plt.savefig(self.image_path)
+
+        self.plot_image(self.log_corrected, image_name='_'.join([self.image_file_name,'logarithmic_corrected_only.png']))
+        self.display_image_function(''.join([PATH, self.image_file_name, '_logarithmic_corrected_only.png']))
 
     def gray_filter(self):
         self.gamma = 1
@@ -310,18 +292,38 @@ class App(customtkinter.CTk):
     def histogram_equalization(self):
         self.img = img_as_ubyte(io.imread(PATH + self.image_choice.get(), as_gray=True))
 
-        self.hist, self.bins = np.histogram(self.img, bins=256, range=(self.img.min(), self.img.max()))
+        # Calculate the PDF (probability density function)
+        self.pdf = {}
+        for row in range(self.img.shape[0]):
+            for col in range(self.img.shape[1]):
+                pixel_value = self.img[row, col]
+                if pixel_value not in self.pdf:
+                    self.pdf[pixel_value] = (0, 0)
+                pdf_value, pixel_count = self.pdf[pixel_value]
+                pdf_value += 1 / self.img.size
+                pixel_count += 1
+                self.pdf[pixel_value] = (pdf_value, pixel_count)
 
+        for key, value in self.pdf.items():
+            pixel_value = key
+            pdf_value = value[0]
+            pixel_count = value[1]
+            print(f"Pixel value: {pixel_value}, PDF value: {pdf_value}, Pixel count: {pixel_count}")
 
-        cdf = self.hist.cumsum()
-        cdf_normalized = cdf / cdf.max()
-        cdf_mapped = np.round(cdf_normalized * 255).astype(np.uint8)
+        # Calculate the CDF (cumulative distribution function)
+        self.cdf = {}
+        cdf_values = []
+        cdf_sum = 0
+        for i in range(256):
+            if i in self.pdf:
+                pdf_value = self.pdf[i][0]
+                pixel_count = self.pdf[i][1]
+                cdf_sum += pdf_value * pixel_count
+            self.cdf[i] = cdf_sum
+            cdf_values.append(cdf_sum)
 
-        # Map each pixel value to its new value using the CDF
-        self.img_equalized = np.interp(self.img.flatten(), self.bins[:-1], cdf_mapped)
-
-        # Reshape the equalized image and convert it back to 8-bit unsigned integer
-        self.img_equalized = self.img_equalized.reshape(self.img.shape).astype(np.uint8)
+        # Equalize image
+        self.img_equalized = np.interp(self.img.flatten(), list(self.cdf.keys()), list(self.cdf.values())).reshape(self.img.shape)
 
         # Display the original and equalized images side by side
         fig, axes = plt.subplots(1, 2, figsize=(10, 5), facecolor='none')
