@@ -3,10 +3,8 @@ import cvzone
 from cvzone.FaceMeshModule import FaceMeshDetector
 from cvzone.PlotModule import LivePlot
 import numpy as np
-import time
 import logging
-import logging.config
-from loggly.handlers import HTTPSHandler
+
 
 WIDTH = 750
 HEIGHT = 500
@@ -15,17 +13,18 @@ LEFT_EYE = [33,144,145,153,154,155,157,158,159,160,161]
 RIGHT_EYE = [249,263,373,374,380,381,382,381,382,384,385,386,387,388,390]
 
 def main():
-
     cap = cv2.VideoCapture(0)
     # cap = cv2.VideoCapture('./Semester_Assignment/Video.mp4')
     detector = FaceMeshDetector(maxFaces=1)
-    plotY_1 = LivePlot(WIDTH, HEIGHT, [100,1000], invert=True)
-    plotY_2 = LivePlot(WIDTH, HEIGHT, [100,1000], invert=True)
+    plotY_1 = LivePlot(WIDTH, HEIGHT, [100,2000], invert=True)
+    plotY_2 = LivePlot(WIDTH, HEIGHT, [100,2000], invert=True)
 
     left_ratio = []
     left_eye_historical_data = []
     right_ratio = []
     right_eye_historical_data = []
+
+    camera_movement_trashed = 1.4
 
     threshold = 0.85
     threshold2 = 0.8
@@ -61,36 +60,36 @@ def main():
                 leftDown = faces[145]
                 leftLeft = faces[130]
                 leftRight = faces[243]
-                l_length_ver = detector.findDistance(leftUp, leftDown)[0]
-                l_length_hor = detector.findDistance(leftLeft, leftRight)[0]
-                l_ratio = round((l_length_ver/l_length_hor)*100, 2)
+                # l_length_ver = detector.findDistance(leftUp, leftDown)[0]
+                # l_length_hor = detector.findDistance(leftLeft, leftRight)[0]
+                # l_ratio = round((l_length_ver/l_length_hor)*100, 2)
 
-                if len(left_ratio) > 3:
-                    left_ratio.pop(0)
-                left_ratio.append(l_ratio)
+                # if len(left_ratio) > 3:
+                #     left_ratio.pop(0)
+                # left_ratio.append(l_ratio)
 
-                l_ratio_mean = sum(left_ratio)/len(left_ratio)
-                if len(left_eye_historical_data) < 6:
-                    left_eye_historical_data.append(l_ratio_mean)
-                left_eye_ratio = sum(left_eye_historical_data)/len(left_eye_historical_data)
+                # l_ratio_mean = sum(left_ratio)/len(left_ratio)
+                # if len(left_eye_historical_data) < 6:
+                #     left_eye_historical_data.append(l_ratio_mean)
+                # left_eye_ratio = sum(left_eye_historical_data)/len(left_eye_historical_data)
 
 
                 rightUp = faces[386]
                 rightDown = faces[374]
                 rightLeft = faces[382]
                 rightRight = faces[263]
-                r_length_ver = detector.findDistance(rightUp, rightDown)[0]
-                r_length_hor = detector.findDistance(rightLeft, rightRight)[0]
-                r_ratio = round((r_length_ver/r_length_hor)*100, 2)
+                # r_length_ver = detector.findDistance(rightUp, rightDown)[0]
+                # r_length_hor = detector.findDistance(rightLeft, rightRight)[0]
+                # r_ratio = round((r_length_ver/r_length_hor)*100, 2)
 
-                if len(right_ratio) > 3:
-                    right_ratio.pop(0)
-                right_ratio.append(l_ratio)
+                # if len(right_ratio) > 3:
+                #     right_ratio.pop(0)
+                # right_ratio.append(l_ratio)
 
-                r_ratio_mean = sum(right_ratio)/len(right_ratio)
-                if len(right_eye_historical_data) < 6:
-                    right_eye_historical_data.append(r_ratio_mean)
-                right_eye_ratio = sum(right_eye_historical_data)/len(right_eye_historical_data)
+                # r_ratio_mean = sum(right_ratio)/len(right_ratio)
+                # if len(right_eye_historical_data) < 6:
+                #     right_eye_historical_data.append(r_ratio_mean)
+                # right_eye_ratio = sum(right_eye_historical_data)/len(right_eye_historical_data)
 
 
                 # if len(left_eye_historical_data) > 5 and len(right_eye_historical_data) > 5:
@@ -108,34 +107,43 @@ def main():
                 #             color = (0,200,0)
                 #             counter = 0
 
-                print(f'Left area {LeftEyeArea(faces)} | Right area {RightEyeArea(faces)}')
-                # logger.info(f'Left area {LeftEyeArea(faces)} | Right area {RightEyeArea(faces)}')
 
                 left_eye_area = LeftEyeArea(faces)
                 right_eye_area = RightEyeArea(faces)
 
                 if len(left_eye_area_data) != 5:
                     left_eye_area_data.append(left_eye_area)
-                print(f'if {sum(left_eye_area_data)/len(left_eye_area_data) * threshold} < {left_eye_area}')
-                # logger.info(f'if {sum(left_eye_area_data)/len(left_eye_area_data) * threshold} < {left_eye_area}')
+                left_eye_closed = sum(left_eye_area_data)/len(left_eye_area_data)
 
                 if len(right_eye_area_data) != 5:
                     right_eye_area_data.append(right_eye_area)
-                print(f'if {sum(right_eye_area_data)/len(right_eye_area_data) * threshold} < {right_eye_area}')
-                # logger.info(f'if {sum(right_eye_area_data)/len(right_eye_area_data) * threshold} < {right_eye_area}')
+                right_eye_closed = sum(right_eye_area_data)/len(right_eye_area_data)
 
-                if sum(left_eye_area_data)/len(left_eye_area_data) * threshold2 < left_eye_area and sum(right_eye_area_data)/len(right_eye_area_data) * threshold2 < right_eye_area:
-                    color = (255,0, 255)
-                    counter = 1
-                else:
-                    left_eye_area_data.pop(0)
-                    right_eye_area_data.pop(0)
-                if counter != 0:
-                    counter += 1
-                    if counter > 2:
-                        blinkCounter += 1
-                        color = (0,200,0)
-                        counter = 0
+                logging.info(f'left_eye_closed: {left_eye_closed * threshold2} < left_eye_area: {left_eye_area} and historical data: {left_eye_area_data}')
+                logging.info(f'right_eye_closed: {right_eye_closed * threshold2} < right_eye_area: {right_eye_area} and historical data: {right_eye_area_data}')
+                logging.info(f'blink counter: {blinkCounter}')
+
+                if len(left_eye_area_data) == 5 and len(right_eye_area_data) == 5:
+                    if left_eye_closed > left_eye_area * camera_movement_trashed and right_eye_closed > right_eye_area * camera_movement_trashed:
+                        logging.info(f'camera movement detected {left_eye_closed} < {left_eye_area} and {right_eye_closed} < {right_eye_area}')
+                        print('camera movement detected')
+                        if len(left_eye_area_data) == 5:
+                            left_eye_area_data.clear()
+                        if len(right_eye_area_data) == 5:
+                            right_eye_area_data.clear()
+                    elif left_eye_closed * threshold2 < left_eye_area and right_eye_closed * threshold2 < right_eye_area:
+                        left_eye_area_data.pop(0)
+                        right_eye_area_data.pop(0)
+                        left_eye_area_data.append(left_eye_area)
+                        right_eye_area_data.append(right_eye_area)
+                        color = (255,0, 255)
+                        counter = 1
+                    if counter != 0:
+                        counter += 1
+                        if counter > 2:
+                            blinkCounter += 1
+                            color = (0,200,0)
+                            counter = 0
 
 
                 cvzone.putTextRect(img, f'Blinks: {blinkCounter}', [20, 50], 3, 2, offset=20, border=1, colorR=color)
@@ -158,8 +166,10 @@ def main():
             # Resize the display window
             cv2.imshow("Image", imageStack)
             cv2.waitKey(25)
-        except:
-            print("No face detected")
+
+        except Exception as e:
+            logging.exception(f'Exception occurred: {e}')
+            print(e)
 
 
 def LeftEyeArea(faces):
@@ -178,8 +188,10 @@ def RightEyeArea(faces):
 
 
 if __name__=="__main__":
-    logging.config.fileConfig('./Semester_Assignment/python.conf')
-    logging.Formatter.converter = time.gmtime
-    logger = logging.getLogger('myLogger')
-    logger.info('Test log')
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(message)s",
+        datefmt="%Y-%m-%d %H:%M:%S",
+        filename="./Semester_Assignment/logs.log"
+    )
     main()
