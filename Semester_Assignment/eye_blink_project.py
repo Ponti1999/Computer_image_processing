@@ -4,7 +4,8 @@ from cvzone.FaceMeshModule import FaceMeshDetector
 from cvzone.PlotModule import LivePlot
 import numpy as np
 import logging
-
+import time
+import pygame
 
 WIDTH = 750
 HEIGHT = 500
@@ -30,6 +31,9 @@ def main():
     threshold2 = 0.8
     blinkCounter = 0
     counter = 0
+
+    frameCounter = 0
+    last_check_time = time.time()
 
     left_eye_area_data = []
     right_eye_area_data = []
@@ -109,29 +113,29 @@ def main():
 
 
                 left_eye_area = LeftEyeArea(faces)
-                right_eye_area = RightEyeArea(faces)
-
                 if len(left_eye_area_data) != 5:
                     left_eye_area_data.append(left_eye_area)
                 left_eye_closed = sum(left_eye_area_data)/len(left_eye_area_data)
+                left_eye_threshold = left_eye_closed * threshold2
 
+
+                right_eye_area = RightEyeArea(faces)
                 if len(right_eye_area_data) != 5:
                     right_eye_area_data.append(right_eye_area)
                 right_eye_closed = sum(right_eye_area_data)/len(right_eye_area_data)
+                right_eye_threshold = right_eye_closed * threshold2
 
-                logging.info(f'left_eye_closed: {left_eye_closed * threshold2} < left_eye_area: {left_eye_area} and historical data: {left_eye_area_data}')
-                logging.info(f'right_eye_closed: {right_eye_closed * threshold2} < right_eye_area: {right_eye_area} and historical data: {right_eye_area_data}')
-                logging.info(f'blink counter: {blinkCounter}')
 
+                eye_blink = left_eye_threshold < left_eye_area and right_eye_threshold < right_eye_area
                 if len(left_eye_area_data) == 5 and len(right_eye_area_data) == 5:
                     if left_eye_closed > left_eye_area * camera_movement_trashed and right_eye_closed > right_eye_area * camera_movement_trashed:
-                        logging.info(f'camera movement detected {left_eye_closed} < {left_eye_area} and {right_eye_closed} < {right_eye_area}')
+                        # logging.info(f'camera movement detected {left_eye_closed} < {left_eye_area} and {right_eye_closed} < {right_eye_area}')
                         print('camera movement detected')
                         if len(left_eye_area_data) == 5:
-                            left_eye_area_data.clear()
+                            left_eye_area_data.pop(0)
                         if len(right_eye_area_data) == 5:
-                            right_eye_area_data.clear()
-                    elif left_eye_closed * threshold2 < left_eye_area and right_eye_closed * threshold2 < right_eye_area:
+                            right_eye_area_data.pop(0)
+                    elif eye_blink:
                         left_eye_area_data.pop(0)
                         right_eye_area_data.pop(0)
                         left_eye_area_data.append(left_eye_area)
@@ -144,6 +148,12 @@ def main():
                             blinkCounter += 1
                             color = (0,200,0)
                             counter = 0
+
+                current_time = time.time()
+                if current_time - last_check_time >= 60:
+                    print('check_blink_counter')
+                    check_blink_counter(0)
+                    last_check_time = current_time
 
 
                 cvzone.putTextRect(img, f'Blinks: {blinkCounter}', [20, 50], 3, 2, offset=20, border=1, colorR=color)
@@ -159,6 +169,9 @@ def main():
                 img = cv2.resize(img, (WIDTH, HEIGHT), interpolation=cv2.INTER_AREA)
                 imageStack = cvzone.stackImages([img, l_imagePlot, r_imagePlot], 3, 1)
 
+                frameCounter += 1
+                logging.info(f'frame: {frameCounter}, left_eye_area: {left_eye_area}, right_eye_area: {right_eye_area}, left_eye_closed: {left_eye_closed}, right_eye_closed: {right_eye_closed}, left_eye_threshold: {left_eye_threshold}, right_eye_threshold: {right_eye_threshold}, blinkCounter: {blinkCounter}')
+
             else:
                 img = cv2.resize(img, (WIDTH, HEIGHT), interpolation=cv2.INTER_AREA)
                 imageStack = cvzone.stackImages([img], 3, 1)
@@ -170,6 +183,7 @@ def main():
         except Exception as e:
             logging.exception(f'Exception occurred: {e}')
             print(e)
+            exit(1)
 
 
 def LeftEyeArea(faces):
@@ -187,11 +201,19 @@ def RightEyeArea(faces):
     return right_eye_points_area
 
 
+def check_blink_counter(blink_counter):
+    if blink_counter < 12:
+        print('You are not blinking enough')
+        pygame.mixer.init()
+        pygame.mixer.music.load("./sounds/alarm.mp3")
+        pygame.mixer.music.play()
+
+
 if __name__=="__main__":
     logging.basicConfig(
         level=logging.INFO,
         format="%(message)s",
         datefmt="%Y-%m-%d %H:%M:%S",
-        filename="./Semester_Assignment/logs.log"
+        filename="./logs_plot2.log"
     )
     main()
