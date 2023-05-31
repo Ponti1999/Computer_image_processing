@@ -98,5 +98,5 @@ def plot_data(file_path):
 
 
 if __name__=="__main__":
-    file_path = './logs_plot2.log'
+    file_path = './logs/logs_plot2.log'
     plot_data(file_path)

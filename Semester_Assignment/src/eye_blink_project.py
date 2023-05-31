@@ -130,7 +130,6 @@ def main():
                 if len(left_eye_area_data) == 5 and len(right_eye_area_data) == 5:
                     if left_eye_closed > left_eye_area * camera_movement_trashed and right_eye_closed > right_eye_area * camera_movement_trashed:
                         # logging.info(f'camera movement detected {left_eye_closed} < {left_eye_area} and {right_eye_closed} < {right_eye_area}')
-                        print('camera movement detected')
                         if len(left_eye_area_data) == 5:
                             left_eye_area_data.pop(0)
                         if len(right_eye_area_data) == 5:
@@ -151,7 +150,6 @@ def main():
 
                 current_time = time.time()
                 if current_time - last_check_time >= 60:
-                    print('check_blink_counter')
                     check_blink_counter(0)
                     last_check_time = current_time
 
@@ -182,7 +180,6 @@ def main():
 
         except Exception as e:
             logging.exception(f'Exception occurred: {e}')
-            print(e)
             exit(1)
 
 
@@ -203,7 +200,6 @@ def RightEyeArea(faces):
 
 def check_blink_counter(blink_counter):
     if blink_counter < 12:
-        print('You are not blinking enough')
         pygame.mixer.init()
         pygame.mixer.music.load("./sounds/alarm.mp3")
         pygame.mixer.music.play()
@@ -214,6 +210,6 @@ if __name__=="__main__":
         level=logging.INFO,
         format="%(message)s",
         datefmt="%Y-%m-%d %H:%M:%S",
-        filename="./logs_plot2.log"
+        filename="./logs/logs_plot2.log"
     )
     main()
