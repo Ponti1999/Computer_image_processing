@@ -54,6 +54,8 @@ Miután megkaptuk a szem körül elhelyezkedő pontokat meg kell határoznunk a 
 </br>
 
 ## Megvalósítás
+&nbsp;&nbsp;&nbsp;&nbspA megvalósított végleges verzió a eye_blink_project.py .</br>
+
 &nbsp;&nbsp;&nbsp;&nbsp;A megvalósítás során kellett keresnem elsősorban olyan könyvtárakat, előre megírt programot, ami képes az arc és/vagy a szemek detektálására. Az általam választott könyvtár az opencv-python volt, mert a legtöbb dokumentáció és példa program ezt használta, emelett lehetőséget nyújt az arc azon elemeinek a detektálásához, amik a későbbi továbbfejlesztés során szükségesek lehetnek. </br>
 
 A legelső ilyen implementációm az OpenCV-ből a FaceMashDetector volt, aminek a használata webcamera esetén a következőképpen néz ki: </br>
