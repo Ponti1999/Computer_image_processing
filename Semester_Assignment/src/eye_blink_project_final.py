@@ -2,8 +2,8 @@ import numpy as np
 import time
 import argparse
 import logging
-from help.search_json import search_item_in_users, get_level_length
-from help.search_conditions import create_search_conditions
+import json
+from help.search_json import search_item_in_users, get_level_length, create_search_conditions, list_users_values
 from help.write_json import write_json
 import pygame
 import cv2
@@ -19,26 +19,19 @@ HEIGHT = 500
 LEFT_EYE = [33,144,145,153,154,155,157,158,159,160,161]
 RIGHT_EYE = [249,263,373,374,380,381,382,381,382,384,385,386,387,388,390]
 
-def setup(o_threshold:float=0.8, o_camera_movement_trashed:float=1.4, o_blink_alert:int=12, o_color:tuple=(255, 0, 255)):
+def setup(o_threshold:float, o_camera_movement_trashed:float, o_blink_alert:int, o_color:tuple):
 
     threshold = o_threshold
     camera_movement_trashed = o_camera_movement_trashed
-    counter = 0
-    blinkCounter = 0
-    frameCounter = 0
-    errorCounter = 0
-    left_eye_area_data = []
-    right_eye_area_data = []
-    last_check_time = time.time()
     blink_alert = o_blink_alert
     color = o_color
 
-
-    return threshold, camera_movement_trashed, counter, blinkCounter, frameCounter, errorCounter, left_eye_area_data, right_eye_area_data, last_check_time, blink_alert, color
-
+    return threshold, camera_movement_trashed, blink_alert, color
 
 
-def start(developer_mode:bool=False):
+
+def start(developer_mode:bool=False, results:dict=None):
+    print(f'Successfully started the app!')
     # Here we can set the source of the video. Webcam / mp4 file.
     cap = cv2.VideoCapture(0)
     # cap = cv2.VideoCapture('./Semester_Assignment/Video.mp4')
@@ -50,8 +43,15 @@ def start(developer_mode:bool=False):
 
     imageStack = None
 
+    counter = 0
+    blinkCounter = 0
+    frameCounter = 0
+    errorCounter = 0
+    left_eye_area_data = []
+    right_eye_area_data = []
+    last_check_time = time.time()
     # These are the variables we use to calculate the blinks
-    threshold, camera_movement_trashed, counter, blinkCounter, frameCounter, errorCounter, left_eye_area_data, right_eye_area_data, last_check_time, blink_alert, color = setup()
+    threshold, camera_movement_trashed, blink_alert, color = setup(results['threshold'], results['camera_movement_trashed'], results['blink_alert'], results['color'])
 
     while True:
         success, img = cap.read()
@@ -169,6 +169,29 @@ def check_blink_counter(blink_counter):
         pygame.mixer.music.load("./sounds/alarm.mp3")
         pygame.mixer.music.play()
 
+
+def parse_color(value):
+    try:
+        r, g, b = value.split(',')
+        r, g, b = int(r.strip()), int(g.strip()), int(b.strip())
+        return (r, g, b)
+    except ValueError:
+        raise argparse.ArgumentTypeError("Invalid color format. Expected format: 'r, g, b'")
+
+
+def user_setup_load(verbose_bool:bool=False, user_str:str=None):
+    profiles, values = list_users_values(path=CONFIG_PATH, user=user_str, verbose=verbose_bool)
+    if values is None:
+        print(f'Currently available profiles:')
+        for key in profiles:
+            print(key)
+    else:
+        try:
+            start(developer_mode=verbose_bool, results=values)
+        except Exception as e:
+            raise argparse.ArgumentTypeError(f'Exception occurred: {e}')
+
+
 def menu():
     parser = argparse.ArgumentParser(description='Fatigue monitoring app based on eye blink detection')
     subparsers = parser.add_subparsers(dest='mode', help='Mode of the app')
@@ -177,10 +200,13 @@ def menu():
     developer_parser.add_argument('-t', '--threshold', type=float, help='Threshold for the eye area')
     developer_parser.add_argument('-m', '--camera_movement_trashed', type=float, help='Threshold for the camera movement')
     developer_parser.add_argument('-b', '--blink_alert', type=int, help='Threshold for the blink alert')
-    developer_parser.add_argument('-c', '--color', type=tuple, help='Threshold for the color')
+    developer_parser.add_argument('-c', '--color', type=parse_color, help='Threshold for the color')
     developer_parser.add_argument('-v', '--verbose', action='store_true', help='Verbose mode')
+    developer_parser.add_argument('-s', '--set', type=str, help='Set the user profile')
+
 
     userparser = subparsers.add_parser('user', help='User mode')
+    userparser.add_argument('-s', '--set', type=str, help='Set the user profile')
 
     args = parser.parse_args()
 
@@ -192,16 +218,17 @@ def menu():
         if len(results) != max_length:
             if num_developer_args == 4:
                 write_json(path=CONFIG_PATH, verbose=args.verbose, values=create_search_conditions(args, exception))
-        if args.verbose:
-            print(f'Given elements: {create_search_conditions(args, exception)}, closest config elements: {results}')
-            if results:
-                print("Search results:")
-                for key, value in results.items():
-                    print(f"{key}: {value}")
+                results = search_item_in_users(CONFIG_PATH, create_search_conditions(args, exception))
+                start(developer_mode=args.verbose, results=results)
             else:
-                print("No results found.")
+                if args.verbose:
+                    print('One element is missing from the call. It will load the default values. If you want to change to other profile please use the -l -s flags.')
+                user_setup_load(verbose_bool=args.verbose, user_str=args.set)
+        else:
+            start(developer_mode=args.verbose, results=results)
 
-    # elif args.mode == 'user':
+    elif args.mode == 'user':
+        user_setup_load(user_str=args.set)
 
 
 if __name__=="__main__":

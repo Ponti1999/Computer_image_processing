@@ -1,34 +1,22 @@
 {
   "user1": {
-    "threshold": 4,
-    "camera_movement_trashed": 2,
-    "blink_alert": 3,
-    "color": 4
+    "threshold": 0.8,
+    "camera_movement_trashed": 1.4,
+    "blink_alert": 12,
+    "color": [
+      255,
+      0,
+      255
+    ]
   },
   "user2": {
-    "threshold": 1,
-    "camera_movement_trashed": 2,
-    "blink_alert": 5,
-    "color": 4
-  },
-  "user3": {
-    "values": {
-      "mode": "developer",
-      "threshold": 2.0,
-      "camera_movement_trashed": 6.0,
-      "blink_alert": 5.0,
-      "color": 4.0,
-      "verbose": false
-    }
-  },
-  "user4": {
-    "values": {
-      "mode": "developer",
-      "threshold": 2.0,
-      "camera_movement_trashed": 6.0,
-      "blink_alert": 5.0,
-      "color": 4.0,
-      "verbose": false
-    }
+    "threshold": 0.9,
+    "camera_movement_trashed": 1.4,
+    "blink_alert": 12,
+    "color": [
+      0,
+      255,
+      0
+    ]
   }
 }
