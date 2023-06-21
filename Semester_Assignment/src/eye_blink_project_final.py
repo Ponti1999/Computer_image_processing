@@ -38,8 +38,8 @@ def start(developer_mode:bool=False, results:dict=None):
 
     detector = FaceMeshDetector(maxFaces=1)
 
-    plotY_1 = LivePlot(WIDTH, HEIGHT, [100,2000], invert=True)
-    plotY_2 = LivePlot(WIDTH, HEIGHT, [100,2000], invert=True)
+    plotY_1 = LivePlot(WIDTH, HEIGHT, [100,1200], invert=True)
+    plotY_2 = LivePlot(WIDTH, HEIGHT, [100,1200], invert=True)
 
     imageStack = None
 
@@ -47,13 +47,15 @@ def start(developer_mode:bool=False, results:dict=None):
     blinkCounter = 0
     frameCounter = 0
     errorCounter = 0
+    open_eye_counter = 0
     left_eye_area_data = []
     right_eye_area_data = []
     last_check_time = time.time()
     # These are the variables we use to calculate the blinks
-    threshold, camera_movement_trashed, blink_alert, color = setup(results['threshold'], results['camera_movement_trashed'], results['blink_alert'], results['color'])
+    threshold, camera_movement_trashed, blink_alert, color_setup = setup(results['threshold'], results['camera_movement_trashed'], results['blink_alert'], results['color'])
 
     while True:
+        display_color = color_setup
         success, img = cap.read()
 
         # If it is a video and we would run out of the frames then start the video over again
@@ -70,9 +72,9 @@ def start(developer_mode:bool=False, results:dict=None):
                 # We want to get the left and right eye circles on the display
                 if developer_mode:
                     for id in LEFT_EYE:
-                        cv2.circle(img, tuple(faces[id]), 5, color, cv2.FILLED)
+                        cv2.circle(img, tuple(faces[id]), 5, display_color, cv2.FILLED)
                     for id in RIGHT_EYE:
-                        cv2.circle(img, tuple(faces[id]), 5, color, cv2.FILLED)
+                        cv2.circle(img, tuple(faces[id]), 5, display_color, cv2.FILLED)
 
                 left_eye_area = LeftEyeArea(faces)
                 if len(left_eye_area_data) != 5:
@@ -100,27 +102,28 @@ def start(developer_mode:bool=False, results:dict=None):
                         right_eye_area_data.pop(0)
                         left_eye_area_data.append(left_eye_area)
                         right_eye_area_data.append(right_eye_area)
-                        color = (255,0, 255)
+                        display_color = color_setup
+                        open_eye_counter += 1
                         counter = 1
                     if counter != 0:
                         counter += 1
                         if counter > 2:
                             blinkCounter += 1
-                            color = (0,200,0)
+                            display_color = (0,200,0)
                             counter = 0
 
                 current_time = time.time()
                 if current_time - last_check_time >= 60:
-                    check_blink_counter(0)
+                    check_blink_counter(frameCounter, open_eye_counter, blinkCounter, blink_alert)
                     last_check_time = current_time
 
                 # We want to display the number of blinks on the screen
-                cvzone.putTextRect(img, f'Blinks: {blinkCounter}', [20, 50], 3, 2, offset=20, border=1, colorR=color)
+                cvzone.putTextRect(img, f'Blinks: {blinkCounter}', [20, 50], 3, 2, offset=20, border=1, colorR=display_color)
 
                 if developer_mode:
                     # We want to plot a graph of the l_ratio changes on a new window
-                    l_imagePlot = plotY_1.update(left_eye_area, color)
-                    r_imagePlot = plotY_2.update(right_eye_area, color)
+                    l_imagePlot = plotY_1.update(left_eye_area, display_color)
+                    r_imagePlot = plotY_2.update(right_eye_area, display_color)
                     img = cv2.resize(img, (WIDTH, HEIGHT), interpolation=cv2.INTER_AREA)
                     imageStack = cvzone.stackImages([img, l_imagePlot, r_imagePlot], 3, 1)
 
@@ -163,8 +166,9 @@ def RightEyeArea(faces):
     return right_eye_points_area
 
 
-def check_blink_counter(blink_counter):
-    if blink_counter < 12:
+def check_blink_counter(frameCounter, open_eye_counter, blink_counter, blink_alert):
+    open_eye_ratio = open_eye_counter / frameCounter
+    if blink_counter < blink_alert and open_eye_ratio < 0.5:
         pygame.mixer.init()
         pygame.mixer.music.load("./sounds/alarm.mp3")
         pygame.mixer.music.play()
@@ -179,7 +183,7 @@ def parse_color(value):
         raise argparse.ArgumentTypeError("Invalid color format. Expected format: 'r, g, b'")
 
 
-def user_setup_load(verbose_bool:bool=False, user_str:str=None):
+def user_setup_load(verbose_bool:bool=False, user_str:str=''):
     profiles, values = list_users_values(path=CONFIG_PATH, user=user_str, verbose=verbose_bool)
     if values is None:
         print(f'Currently available profiles:')

@@ -59,13 +59,13 @@ def get_level_length(config_path):
             return 0, None
 
 
-def list_users_values(path:str, user:str=None, verbose:bool=False):
+def list_users_values(path:str, user:str='', verbose:bool=False):
     with open(path, 'r') as jsonfile:
         data = json.load(jsonfile)
         user_keys = list(data.keys())
 
-        if user is None:
-            return user_keys, None
+        if user is '':
+            return user_keys, ''
 
         user_data = data.get(user)
         if user_data is None:
