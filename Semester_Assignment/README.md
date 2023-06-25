@@ -1,8 +1,10 @@
 # Ez a féléves feladatom dokumnetációja.
-    Először magyarul, majd később angolul is dokumentálásra kerül a dokumentáció második felében.
+Az első felében magyarul, majd a második felében angolul. </br>
+Az újabb és frissebb dokumentáció angolul található meg [itt az angol résznél](#english-version).
 
 # This is my Semester Assignment documentation.
-    First in Hungarian, then later in English at the second half of this documentation.
+In the first section it is in Hungarian, then in the second section it is in English. </br>
+The newer and fresher documentation can be found in English [here in the English section](#english-version).
 
 </br>
 
@@ -20,7 +22,7 @@
 &nbsp;&nbsp;&nbsp;&nbsp;A leggyakoribb elterjedése napjainkban adott felhasználású gépjárművekben találhatók meg, amik figyelik a gépjármű vezetőinek a fáradsági szintjét. Ezek a kamerák és feldolgozó egységek általában fuvarozó vagy nagyobb tömegközlekedési járművek szélvédőjén vannak jelen egy kompakt kiszerelésben, amik felhő alapú összeköttetésben is vannak a cég rendszerével külső figyelmeztetés vagy kiértékelés érdekében.
 
 ## A feladat
-&nbsp;&nbsp;&nbsp;&nbsp;Az általam kitalált és megalkotandó szoftver jelen .esetemben a számítógéphez kötött webkamera élő képe alapján detektálna arcot és vizsgálná a pislogások gyakoriságát, az egy perc alatt megtett pislogásoknak a mennyiségét, ami 12 pislogásnak felel meg percenként. -- <cite>[High-speed camera characterization of voluntary eye blinking kinematics][1]</cite> </br>
+&nbsp;&nbsp;&nbsp;&nbsp;Az általam kitalált és megalkotandó szoftver jelen esetemben a számítógéphez kötött webkamera élő képe alapján detektálna arcot és vizsgálná a pislogások gyakoriságát, az egy perc alatt megtett pislogásoknak a mennyiségét, ami 12 pislogásnak felel meg percenként. -- <cite>[High-speed camera characterization of voluntary eye blinking kinematics][1]</cite> </br>
 
 </br>
 
@@ -43,7 +45,7 @@ Továbbfejlesztésnél lehet vizsgálni a napszaktól vagy környezettől eltér
 
 &nbsp;&nbsp;&nbsp;&nbsp;Az arc maszk használata során meg kell határoznunk azt, hogy a maszk mely pontjai a száj vagy a szem. Ezt különböző technikákkal meg lehet határozni ilyen például a pontfelhő adott pontértékeinek a közvetlen megadása is. Ez hasznos lehet abban az esetben, ha egy rendszert betanítani szeretnénk és nincs sok, eltérő személynek az arcáról videó anyagunk. A manuális megadással kiszűrhető a rendszer automatikus kijelölésében keletkező zajokat. </br>
 
-![Arc tájékozódási pontok](./img/face_points.png) br>
+![Arc tájékozódási pontok](./img/face_points.png) </br>
 
 Miután megkaptuk a szem körül elhelyezkedő pontokat meg kell határoznunk a pislogás detektálásához a szemhéjtávolságokat. Érthető módon a szemhéjtávolságok változásának függvényében határozhatjuk meg a pislogás, vagy csak a zaj közötti különbséget. „Ehhez tetszőleges mennyiségű pontot fel kell venni a szemen az egyes pislogásoknak a jellemzéséhez. E pontok kiszámításához először a csukott szemeket kell lokalizálni a jel első rendű különbsége és egy adaptív küszöbérték alapján. Ezután, minden egyes észlelt hely esetében a jelet megkeressük azelőtt és a völgy után, amíg meg nem szűnik növekedni egy meghatározott értéken belül, így megkapva a t1 és tx pontokat." -- <cite>[Driver drowsiness detection: a comparison between intrusive and non-intrusive signal acquisition methods][2]</cite> </br>
 
@@ -54,7 +56,7 @@ Miután megkaptuk a szem körül elhelyezkedő pontokat meg kell határoznunk a 
 </br>
 
 ## Megvalósítás
-&nbsp;&nbsp;&nbsp;&nbspA megvalósított végleges verzió a eye_blink_project.py .</br>
+&nbsp;&nbsp;&nbsp;&nbsp;A megvalósított végleges verzió a [eye_blink_project.py](./src/eye_blink_project_final.py) .</br>
 
 &nbsp;&nbsp;&nbsp;&nbsp;A megvalósítás során kellett keresnem elsősorban olyan könyvtárakat, előre megírt programot, ami képes az arc és/vagy a szemek detektálására. Az általam választott könyvtár az opencv-python volt, mert a legtöbb dokumentáció és példa program ezt használta, emelett lehetőséget nyújt az arc azon elemeinek a detektálásához, amik a későbbi továbbfejlesztés során szükségesek lehetnek. </br>
 
@@ -148,3 +150,59 @@ A javított változatnak az értékei a következők: </br>
 
 [2]: https://ieeexplore.ieee.org/document/8611704 'L. Oliveira, J. S. Cardoso, A. Lourenço and C. Ahlström, "Driver drowsiness detection: a comparison between intrusive and non-intrusive signal acquisition methods," 2018 7th European Workshop on Visual Information Processing (EUVIP), Tampere, Finland, 2018, pp. 1-6, doi: 10.1109/EUVIP.2018.8611704.'
 2: L. Oliveira, J. S. Cardoso, A. Lourenço and C. Ahlström, "Driver drowsiness detection: a comparison between intrusive and non-intrusive signal acquisition methods," 2018 7th European Workshop on Visual Information Processing (EUVIP), Tampere, Finland, 2018, pp. 1-6, doi: 10.1109/EUVIP.2018.8611704.
+
+
+---------------------------------------------------------------------------------------------------
+
+# English version
+
+## Introduction
+&nbsp;&nbsp;&nbsp;&nbsp;In the process of figuring out my task I aimed to create a program what can be used in real life. With more development it sould be capable to use it in every day of our work and able to integrate it in my own personal life later. </br>
+
+&nbsp;&nbsp;&nbsp;&nbsp;The task I have devised is to write a program that uses a camera of the user device to detect the user's fatigue level. The program uses the detected eye blinking number and the ratio of the open eye to figure it out. </br>
+
+&nbsp;&nbsp;&nbsp;&nbsp;As a student and an employee wo spends a good part of the day in front of the computer, I think it is important to pay attention to the fatigue level of the user. I noticed that I tend to ignore the signs of fatigue and I don't pay attention to them. As the level of fatigue increase, the efficiency of the work decreases, which is something to better to avoid in productivity mode. This is a problem I think many other people have faced, so I think it is important to pay attention to it. </br>
+
+&nbsp;&nbsp;&nbsp;&nbsp;The most common use tuday is in the car industry (logistics or transportations), where the driver's fatigue level is monitored. These cameras and processing units are isially installed on the windsield in a compact form, which are also connected to the company's system via cloud-based links for external alert or evaluation. </br>
+
+
+## The task
+&nbsp;&nbsp;&nbsp;&nbsp;In my case, the software that I invented and will create would detect a face from a live image of a webcam connected directly to the computer. The program will examine the ratio of time spent with open eyes and the frequency of blinks, the number of blinks, which is in average equivalent to 12 blinks/minute  -- <cite>[High-speed camera characterization of voluntary eye blinking kinematics][1]</cite> </br>
+
+
+## Further development opportunities
+&nbsp;&nbsp;&nbsp;&nbsp;In the future, this software can be further developed by taking into account the duration of blinking, which lasts on average 1/3 of a second. In the case of further development, it is possible to examine the norms of blinking behavior different from the time of day or the environment. In addition, the detection of yawning can also be taken into account, or even the use of a classification system that takes into account the size of the eye opening. </br>
+
+&nbsp;&nbsp;&nbsp;&nbsp;With these additional implementations, I think a very accurate system can be obtained, and it would be sufficient to teach the system if the use of the program spread in a small community. </br>
+
+&nbsp;&nbsp;&nbsp;&nbsp;In the case of laptops, the built-in web camera could provide a useful function for training such a system, which could even be a lifesaver if implemented in vehicles. </br>
+
+
+## Implementation conditions
+&nbsp;&nbsp;&nbsp;&nbsp;To implement the system, we need to be aware of the possibilities and limitations for the detection of the face and the eyes. The limitation means that the camera must provide a clear image of the face and eyes, and depending on the integrated functions, they may even require detailed, high-resolution and high frame rate images. </br>
+
+&nbsp;&nbsp;&nbsp;&nbsp;A combination of several methodes are usually used for the detection phase. In this case, the Haar Cascade algorithm, integrated image processing, AdaBoost, ensemble of regression trees, and the Viola-Jones algorithm are used and many others can be used. If someone wants to create a  system that is almost 100% accurate, or systmm-independent, or optimized for specific hardware / in general, then it is worth considering the use of a combination of these methods. </br>
+
+&nbsp;&nbsp;&nbsp;&nbsp;Nowadays, it is not absolutely necessary to carry out these steps and to know the methodology of each in detail for development, because image classification models are publicly available to everyone. Of these, the best known to me are OpenCV and TensorFlow. The advantage of using them is that they have pre-trained classifiers such as face, eye, mouth recognition and more. </br>
+
+&nbsp;&nbsp;&nbsp;&nbsp;When using the face mask, we need to determine which points on the mask are the mouth or the eyes. This can be determined using different techniques, such as directly entering the given point values of the point cloud. This can be useful in the event that we want to get access to specific part of the face and we do not have video material of the faces of many different people to train a model from zero. Manual input can be used to filter out the noise generated by the system's automatic selection. </br>
+
+![Face orientation points](./img/face_points.png) </br>
+
+&nbsp;&nbsp;&nbsp;&nbsp;After obtaining the points located around the eyes, we need to determine the eyelid distances for blinking detection. Understandably, we can determine the difference between blinking or just noise depending on the changes in the eyelid distances. "For this, any number of points on the eye are taken to characterize each blink. To calculate these points, the closed eyes must first be localized based on the first-order difference of the signal and an adaptive threshold. Then, for each detected location, the signal is searched for before and after the valley until it stops growing within a specified value, thus obtaining the points t1 and tx." -- <cite>[Driver drowsiness detection: a comparison between intrusive and non-intrusive signal acquisition methods][2]</cite> </br>
+
+![To characterize the twinkle](./img/blinking_charact.png) </br>
+
+&nbsp;&nbsp;&nbsp;&nbsp;In the case of the software I implement, I use Python 3 with OpenCV and tkinter or one of its other versions. I will use tkinter or another version of it to create the UI, and I will process the topography of the face with OpenCV. In the implementation, I primarily determine the fatigue from the frequency of blinking per minute and display the operation of the process with a simple UI. In addition, I sign for the user within the same UI.
+
+## Megvalósítás
+&nbsp;&nbsp;&nbsp;&nbsp;The final version of the implementation is the [eye_blink_project.py](./src/eye_blink_project_final.py) .</br>
+
+
+
+##
+
+
+
+
+##
