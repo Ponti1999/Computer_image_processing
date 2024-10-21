@@ -1,208 +1,359 @@
-# Ez a féléves feladatom dokumnetációja.
-Az első felében magyarul, majd a második felében angolul. </br>
-Az újabb és frissebb dokumentáció angolul található meg [itt az angol résznél](#english-version).
+<h1 align="center"> Eye Blink Fatigue Detection Project </h1> <br>
 
-# This is my Semester Assignment documentation.
-In the first section it is in Hungarian, then in the second section it is in English. </br>
-The newer and fresher documentation can be found in English [here in the English section](#english-version).
+<p align="center">
+  A fatigue detection program using a webcam to monitor eye blinks and estimate user fatigue levels. Built with Python, OpenCV, and Tkinter.
+</p>
+
+## English Version
+
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+## Table of Contents
+
+- [English Version](#english-version)
+  - [Introduction](#introduction)
+  - [Industry Use Cases](#industry-use-cases)
+  - [Features](#features)
+  - [Technologies](#technologies)
+  - [Implementation Details](#implementation-details)
+  - [First Version](#first-version)
+  - [First Blink Detection Version](#first-blink-detection-version)
+  - [First Version Issues](#first-version-issues)
+  - [Second Version Improvements](#second-version-improvements)
+  - [Adding Alerts and Counters](#adding-alerts-and-counters)
+  - [Testing Other Approaches](#testing-other-approaches)
+  - [Debugging and UI Updates](#debugging-and-ui-updates)
+- [Future Improvements](#future-improvements)
+- [References](#references)
+- [Magyar Verzió](#magyar-verzió)
+  - [Bevezetés](#bevezetés)
+  - [Ipari Felhasználási Esetek](#ipari-felhasználási-esetek)
+  - [Jellemzők](#jellemzők)
+  - [Technológiák](#technológiák)
+  - [Megvalósítási Részletek](#megvalósítási-részletek)
+  - [Első Verzió](#első-verzió)
+  - [Első Pislogás Érzékelő Verzió](#első-pislogás-érzékelő-verzió)
+  - [Első Verzió Problémái](#első-verzió-problémái)
+  - [Második Verzió Javításai](#második-verzió-javításai)
+  - [Riasztások és Számlálók Hozzáadása](#riasztások-és-számlálók-hozzáadása)
+  - [Más Megközelítések Tesztelése](#más-megközelítések-tesztelése)
+  - [Hibakeresés és UI Frissítések](#hibakeresés-és-ui-frissítések)
+- [Jövőbeli Fejlesztések](#jövőbeli-fejlesztések)
+- [Hivatkozások](#hivatkozások)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
+### Introduction
+
+This project aims to create a practical program that can monitor and assess user fatigue based on eye blinking patterns detected via a webcam. By calculating blink frequency and open-eye ratios, the program evaluates fatigue levels, which can be crucial for productivity and safety in work or personal environments.
+
+As a student and employee who spends a significant amount of time in front of a computer, I noticed the importance of addressing fatigue before it negatively impacts productivity. This software offers a potential solution by tracking eye movements and providing feedback to the user.
+
+The most common use today is in the automotive industry, where the driver's fatigue level is monitored. Blink frequency is generally around 12 blinks per minute on average [1].
+
+### Industry Use Cases
+The system could be applied in various environments, such as transportation or personal workspaces. In vehicles, especially in transportation or logistics, this system helps monitor driver alertness by detecting eye blinks and other signs of fatigue. Systems like this are typically installed on the windshield of vehicles, connected to a company’s system through cloud-based alerts for external evaluations [2].
+
+### Features
+
+Some of the key features of this project include:
+
+- Real-time eye blink detection using a webcam.
+- Fatigue assessment based on blink frequency (average of 12 blinks per minute [1]).
+- Basic user interface (UI) built with Tkinter for displaying blink counts and fatigue indicators.
+- Potential for further development into more sophisticated fatigue monitoring systems.
+
+### Technologies
+
+This project utilizes the following technologies:
+
+- **Languages**: Python 3
+- **Libraries**:
+  - OpenCV for facial and eye detection.
+  - Tkinter for creating the user interface.
+- **Algorithms**: Haar Cascade for face and eye detection, contour-based analysis for blink detection.
+
+### Implementation Details
+
+The software captures real-time video through the device's webcam and uses OpenCV to detect facial landmarks. Specifically, it tracks the eyes and calculates eyelid distance to detect blinks. This information is then used to monitor blink frequency, which indicates user fatigue levels.
+
+### First Version
+
+<p align="center">
+  <img src="./img/facemash.png" alt="FaceMashDetector" width="400">
+</p>
+
+1. **Face and Eye Detection**:
+   - Implemented using Haar Cascade classifiers from OpenCV.
+   - Facial landmarks around the eyes are located to calculate the distance between eyelids.
+
+<p align="center">
+  <img src="./img/face_points.png" alt="Face orientation points" width="400">
+</p>
+
+### First Blink Detection Version
+
+2. **Blink Detection**:
+   - The distance between the upper and lower eyelids is measured to detect blinks. When the distance decreases below a threshold, a blink is registered. This method is based on standard eyelid movements observed in fatigue monitoring research [2].
+
+<p align="center">
+  <img src="./img/blinking_charact.png" alt="Blink detection characterization" width="400">
+</p>
+
+   - A historical data array stores recent blink events, and if the blink frequency falls below the average threshold, the program triggers a fatigue alert.
+
+<p align="center">
+  <img src="./img/eyes_crossed.png" alt="Eyes crossed for blink detection" width="400">
+</p>
+
+3. **Fatigue Monitoring**:
+   - The program counts the number of blinks per minute and compares it with the standard 12 blinks/minute threshold to assess fatigue [1].
+   - If the blink count is too low, an alert is triggered, indicating potential user fatigue.
+
+### First Version Issues
+Despite getting valid results, three issues were noticed:
+- **Fast blinks**: The system rarely detected quick blinks.
+- **Winking**: It falsely detected minimal eye closures (such as winking) as blinks.
+- **Camera movement**: The blink threshold got stuck and the system stopped detecting when the camera moved back and forth.
+
+### Second Version Improvements
+
+In the second version, the following adjustments were made:
+
+- Measured eyelid areas instead of just distances, using contour calculations for more accuracy.
+- Blink events are now detected more reliably, even for fast blinks or winking, and the system adapts to camera movements dynamically.
+
+<p align="center">
+  <img src="./img/left_plot.png" alt="Left eye blink detection plot" width="400">
+</p>
+
+- **1**: The historical data and threshold show clear downward spikes, indicating valid blink detections.
+- **2**: When the camera moves closer to the subject, the system adjusts to the larger eye area, ensuring proper detection.
+- **3**: Moving away from the camera previously caused detection issues, but now the system adjusts by dynamically managing the historical data.
+
+<p align="center">
+  <img src="./img/left_eye_imp.png" alt="Left eye improved plot" width="400">
+</p>
+
+This improved version successfully handles exceptions such as:
+- Closer or further camera movements.
+- Quick blinks and winks, which are correctly detected or ignored, respectively.
+
+### Adding Alerts and Counters
+
+In the final step, a counter and a time function were added to monitor whether the system detects at least 12 blinks in 60 seconds. If not, an alert is triggered. The alert, in this case, is a predefined MP3 file that plays when the user hasn't blinked enough.
+
+### Testing Other Approaches
+
+Two other approaches were also tested during the implementation process. One of them involved using a trained model for eye detection, achieving around 70% accuracy. However, I couldn't extract enough useful information about eye closure from this detection method.
+
+The second approach was similar to the first, where I tried training the model myself. However, due to a lack of labeled data, I was unable to perform effective pre-training. Real-time learning proved ineffective, as it required too much time to achieve limited results.
+
+### Debugging and UI Updates
+
+In this version, I added real-time logging for data analysis. The system logs blink events for later graph analysis, and the UI displays the blink frequency dynamically.
+
+## Future Improvements
+
+Here are some potential areas for further development:
+
+1. **Blink Duration Analysis**: Include the length of time each blink lasts to provide more accurate fatigue assessments.
+
+2. **Yawning Detection**: Integrate additional facial gesture analysis to detect yawns, enhancing fatigue monitoring accuracy.
+
+3. **Environment-based Adjustments**: Analyze how blinking behavior changes based on time of day or environmental factors.
+
+4. **Eye Openness Classification**: Implement a system that classifies eye openness levels to identify varying states of fatigue.
+
+5. **Multi-user Support**: Enable the system to track fatigue for multiple users simultaneously by detecting different faces in the frame.
+
+## References
+
+1. K.-A. Kwon, R. J. Shipley, M. Edirisinghe, D. G. Ezra, G. Rose, S. M. Best, and R. E. Cameron, "High-speed camera characterization of voluntary eye blinking kinematics," Journal of the Royal Society Interface, vol. 10, no. 85, p. 20130227, 2013. [Link](https://doi.org/10.1098/rsif.2013.0227)
+
+2. L. Oliveira, J. S. Cardoso, A. Lourenço, and C. Ahlström, "Driver drowsiness detection: a comparison between intrusive and non-intrusive signal acquisition methods," 2018 7th European Workshop on Visual Information Processing (EUVIP), Tampere, Finland, 2018. [Link](https://ieeexplore.ieee.org/document/8611704)
 
 </br>
-
----------------------------------------------------------------------------------------------------
-
-# Magyar dokumentáció
-
-## Bevezetés
-&nbsp;&nbsp;&nbsp;&nbsp;A feladatom kitalálása során törekedtem arra, hogy akár a hétköznapokban is felhasználható legyen és fejlesztések útján akár a saját mindennapjaimba is integrálni lehessen a későbbiekben.
-
-&nbsp;&nbsp;&nbsp;&nbsp;Az általam kitalált feladat egy olyan szoftver írása, amely az eszközön elérhető kamerán keresztül vizsgálja az eszközt használó személynek a fáradsági szintjét a pislogások számából következtetve.
-
-&nbsp;&nbsp;&nbsp;&nbsp;  Mint diák és munkavállaló, aki az idejének jó részét a számítógép előtt tölti, észleltem, hogy hajlamosabbá válok figyelmen kívül hagyni a fáradságra utaló jeleket. A fáradság mértékének növekedésével a produktivitás szintje is csökken, amit munka során jobb elkerülni. Ezzel a problémával véleményem szerint sok más ember is szembesült már.
-
-&nbsp;&nbsp;&nbsp;&nbsp;A leggyakoribb elterjedése napjainkban adott felhasználású gépjárművekben találhatók meg, amik figyelik a gépjármű vezetőinek a fáradsági szintjét. Ezek a kamerák és feldolgozó egységek általában fuvarozó vagy nagyobb tömegközlekedési járművek szélvédőjén vannak jelen egy kompakt kiszerelésben, amik felhő alapú összeköttetésben is vannak a cég rendszerével külső figyelmeztetés vagy kiértékelés érdekében.
-
-## A feladat
-&nbsp;&nbsp;&nbsp;&nbsp;Az általam kitalált és megalkotandó szoftver jelen esetemben a számítógéphez kötött webkamera élő képe alapján detektálna arcot és vizsgálná a pislogások gyakoriságát, az egy perc alatt megtett pislogásoknak a mennyiségét, ami 12 pislogásnak felel meg percenként. -- <cite>[High-speed camera characterization of voluntary eye blinking kinematics][1]</cite> </br>
-
 </br>
 
-## Továbbfejlesztési lehetőségek
-&nbsp;&nbsp;&nbsp;&nbsp;Későbbiekben ez a szoftver továbbfejleszthető pislogás időhosszának figyelembevételével is, ami átlagosan 1/3 másodpercig tart.</br>
-Továbbfejlesztésnél lehet vizsgálni a napszaktól vagy környezettől eltérő pislogási viselkedési normákat. Emellett figyelembe vehető az ásítás detektálása is, vagy akár a szem nyitottságának nagyságát figyelembe vevő osztályozó rendszer használata. </br>
-
-&nbsp;&nbsp;&nbsp;&nbsp;Ezekkel a további implementációkkal szerintem egy egészen pontos rendszert lehet kapni és a rendszer tanításához elegendő lenne az, ha egy kisebb közösségben elterjedne a program használata. </br>
-
-&nbsp;&nbsp;&nbsp;&nbsp;A laptopok esetében az alapból beépített webcamera hasznos funkciót tudna ellátni egy ilyen rendszernek a betanítására, amivel a gépjárművekbe való implementálás esetén akár életmentő is lehet.  </br>
-
- </br>
-
-## Megvalósítási feltételek
-&nbsp;&nbsp;&nbsp;&nbsp;A rendszer megvalósításához tisztában kell lenni a felépítéséhez szükséges lehetőségekkel és limitációkkal. Limitáció alatt értendő az, hogy a kamerának kellő rálátást kell biztosítani a felhasználó a szemeire / arcára és az integrált funkciók függvényében akár a részletes, magas felbontású és magas FPS melletti üzemelés szükségelhetik. </br>
-
-&nbsp;&nbsp;&nbsp;&nbsp;Észlelési fázishoz több módszernek az ötvözetét szokták használni. Ebben az esetben használható a Haar Cascade algoritmus, integrált kép, az AdaBoost, a regressziós fák együttese módszerek és sok egyéb. Abban az esetben, ha valaki közel rendszerfüggetlen, vagy adott hardverre optimalizált, vagy általánosságba véve optimalizált rendszert szeretne alkotni akkor ezek és sok más egyéb technikák használata javaslott. </br>
-
-&nbsp;&nbsp;&nbsp;&nbsp;Napjainkban nem feltétlenül szükséges ezeket a lépéseket végrehajtanunk és mindnek a metodikáját részleteiben ismernünk fejlesztéshez, mert publikusan elérhető mindenki számára képi osztályozási modellek. Ezek közül a számomra a legismertebbek az OpenCV és a TensorFlow. Ezek használatának az előnye, hogy előre betanított osztályozókkal rendelkeznek, mint például az arc, a szem, a száj felismerése. </br>
-
-&nbsp;&nbsp;&nbsp;&nbsp;Az arc maszk használata során meg kell határoznunk azt, hogy a maszk mely pontjai a száj vagy a szem. Ezt különböző technikákkal meg lehet határozni ilyen például a pontfelhő adott pontértékeinek a közvetlen megadása is. Ez hasznos lehet abban az esetben, ha egy rendszert betanítani szeretnénk és nincs sok, eltérő személynek az arcáról videó anyagunk. A manuális megadással kiszűrhető a rendszer automatikus kijelölésében keletkező zajokat. </br>
-
-![Arc tájékozódási pontok](./img/face_points.png) </br>
-
-Miután megkaptuk a szem körül elhelyezkedő pontokat meg kell határoznunk a pislogás detektálásához a szemhéjtávolságokat. Érthető módon a szemhéjtávolságok változásának függvényében határozhatjuk meg a pislogás, vagy csak a zaj közötti különbséget. „Ehhez tetszőleges mennyiségű pontot fel kell venni a szemen az egyes pislogásoknak a jellemzéséhez. E pontok kiszámításához először a csukott szemeket kell lokalizálni a jel első rendű különbsége és egy adaptív küszöbérték alapján. Ezután, minden egyes észlelt hely esetében a jelet megkeressük azelőtt és a völgy után, amíg meg nem szűnik növekedni egy meghatározott értéken belül, így megkapva a t1 és tx pontokat." -- <cite>[Driver drowsiness detection: a comparison between intrusive and non-intrusive signal acquisition methods][2]</cite> </br>
-
-![A pislogás jellemzése](./img/blinking_charact.png) </br>
-
-&nbsp;&nbsp;&nbsp;&nbsp; Az általam megvalósításra kerülő szoftver esetén a Python 3-at használom fel OpenCV és tkinter vagy azon más változatának egyikével. A UI elkészítéséhez fogom felhasználni a tkinter vagy annak másik változatát és az arc domborzatát pedig az OpenCV-vel dolgozom fel. A megvalósításban elsődlegesen a percenkénti pislogás gyakoriságból meghatározom a fáradságot és egy egyszerű UI-al megjelenítem a folyamat működését. Emellett ugyan azon a UI-on belül jelzek a felhasználó számára. </br>
+--------------------------------
 
 </br>
-
-## Megvalósítás
-&nbsp;&nbsp;&nbsp;&nbsp;A megvalósított végleges verzió a [eye_blink_project.py](./src/eye_blink_project_final.py) .</br>
-
-&nbsp;&nbsp;&nbsp;&nbsp;A megvalósítás során kellett keresnem elsősorban olyan könyvtárakat, előre megírt programot, ami képes az arc és/vagy a szemek detektálására. Az általam választott könyvtár az opencv-python volt, mert a legtöbb dokumentáció és példa program ezt használta, emelett lehetőséget nyújt az arc azon elemeinek a detektálásához, amik a későbbi továbbfejlesztés során szükségesek lehetnek. </br>
-
-A legelső ilyen implementációm az OpenCV-ből a FaceMashDetector volt, aminek a használata webcamera esetén a következőképpen néz ki: </br>
-![FaceMashDetector](./img/facemash.png) </br>
 </br>
 
-Ezután a FaceMashDetector-t kiegészítettem a szemek detektálásával. Ebben az esetben mindkét szemnél található pontokat meg kell adni, hogy a szemhéjtávolságot meg tudjuk határozni. </br>
-Ennek az implementálása után megjelenítettem a meghatározott szem körüli pontokat debuggulos és jobb vizuális megjelenítés érdekében, ami a következőképpen néz ki: </br>
-![Eyes visualisation](./img/eyes_visual.png)
-</br>
+<h1 align="center"> Pislogás Alapú Fáradtság Érzékelő Projekt </h1> <br>
 
-### Első verzió
-&nbsp;&nbsp;&nbsp;&nbsp;A legelső verzió során az alapgondolat az volt, hogy valamilyen módon elegendő lenne mérni csak a felső szemhély és az alsó szemhély távolságát, mert ezek a távolságok a pislogás során változnak. A pislogásokat pedig a távolságok változásának a függvényében lehetne meghatározni. Ehhez nem volt másra szükségem csak megadni a szemhélyeket és a szemhélyek közötti távolságot kiszámolni egy beépített függvény felhívásának segítségével ```detector.findDistance(... , ...)[0]```. </br>
+<p align="center">
+  Egy fáradtságérzékelő program, amely webkamerát használ a pislogások figyelésére és a felhasználó fáradtsági szintjének becslésére. Python, OpenCV és Tkinter felhasználásával készült.
+</p>
 
-&nbsp;&nbsp;&nbsp;&nbsp;Az első pár teszetlés után hamar rájöttem, hogy ez a megoldás nem lesz elég pontos, mert a szemhélyek közötti távolság nem csak a pislogás során változik, ezért a szemek két széle közötti távolságot is meg kell határozni és szemenként ebből a két adatból egy arányt készíteni, ami már alkalmas a szemek becsukásának detektálására külön-külön. </br>
-Ez a következőképpen nézett ki: </br>
+## Magyar Verzió
 
-![Eyes crossed](./img/eyes_crossed.png) </br>
-</br>
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+## Tartalomjegyzék (Magyar)
 
-&nbsp;&nbsp;&nbsp;&nbsp;A detektáláshoz létrehoztam szemenként 1-1 tömböt, amiben hisztorikusan eltárolom a szemek nyitottsági araányainak értékeit. Figyelembe véve azt, hogy egy perc alatt 12 a pislogások -> 1 pislogás / 5 másodperc és hogy sok képkocka esetén se legyen túl sok adat tárolva a hisztorikus tömbökben, ezért a tömbök mérete 5 nagyságúak lettek. </br>
+- [English Version](#english-version)
+- [Table of Contents](#table-of-contents)
+  - [Introduction](#introduction)
+  - [Industry Use Cases](#industry-use-cases)
+  - [Features](#features)
+  - [Technologies](#technologies)
+  - [Implementation Details](#implementation-details)
+  - [First Version](#first-version)
+  - [First Blink Detection Version](#first-blink-detection-version)
+  - [First Version Issues](#first-version-issues)
+  - [Second Version Improvements](#second-version-improvements)
+  - [Adding Alerts and Counters](#adding-alerts-and-counters)
+  - [Testing Other Approaches](#testing-other-approaches)
+  - [Debugging and UI Updates](#debugging-and-ui-updates)
+- [Future Improvements](#future-improvements)
+- [References](#references)
+- [Magyar Verzió](#magyar-verzió)
+- [Tartalomjegyzék (Magyar)](#tartalomjegyzék-magyar)
+  - [Bevezetés](#bevezetés)
+  - [Ipari Felhasználási Esetek](#ipari-felhasználási-esetek)
+  - [Jellemzők](#jellemzők)
+  - [Technológiák](#technológiák)
+  - [Megvalósítási Részletek](#megvalósítási-részletek)
+  - [Első Verzió](#első-verzió)
+  - [Első Pislogás Érzékelő Verzió](#első-pislogás-érzékelő-verzió)
+  - [Első Verzió Problémái](#első-verzió-problémái)
+  - [Második Verzió Javításai](#második-verzió-javításai)
+  - [Riasztások és Számlálók Hozzáadása](#riasztások-és-számlálók-hozzáadása)
+  - [Más Megközelítések Tesztelése](#más-megközelítések-tesztelése)
+  - [Hibakeresés és UI Frissítések](#hibakeresés-és-ui-frissítések)
+- [Jövőbeli Fejlesztések](#jövőbeli-fejlesztések)
+- [Hivatkozások](#hivatkozások)
 
-&nbsp;&nbsp;&nbsp;&nbsp;Valamint egy treshold/határérték meghatározása is szükséges, hogy mettől számít egy szem becsukottnak. A hisztorikus adatokkal, a határérték meghatározásával és a szemek adott képkockájának értékének összehasonlítása a hisztorikus adatok átlagával, már lehetett detektálni a szemek becsukását. </br>
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
-&nbsp;&nbsp;&nbsp;&nbsp;A detektálás esetén egészen jó arányban kaptam valid eredményeket, de 3 problémával is szembesültem:
-- Gyors, hirtelen pislogást a rendszer csak ritkán detektált.
-- Kacsintás esetén a nyitott szem minimálisabb mértékben való becsukását a rendszer pislogásnak detektálta.
-- A kamera előre, hátra való mozgás esetén a rendszer pislogási küszöbértéke beragadt és nem érzékelt tovább (nem lekezelt hiba). </br>
+### Bevezetés
 
-Ezeknek a hiba esetén nem segített a trashold érték növelése / csökkentése, mert ezáltal vagy túl érzékennyé vált vagy túlzottan a nagy változásokra reagált. </br>
+Ez a projekt egy olyan program létrehozását célozza, amely a webkamera segítségével képes monitorozni és értékelni a felhasználó fáradtságát a pislogási minták alapján. A pislogások gyakoriságát és a nyitott szemek arányát figyelve a program fáradtsági szinteket értékel, amelyek a produktivitás és a biztonság szempontjából elengedhetetlenek lehetnek munka vagy személyes használat során.
 
-#### Konklúzió
-&nbsp;&nbsp;&nbsp;&nbsp;Létrehoztam egy kezdetleges rendszert, de közelsem végleges, nem elég megbízható. A tanulságokat és a fellépő hibákat levonva kellene készítenem egy olyan továbbfejlesztett változatot ebből, ami képes lekezelni az említett hibákat. </br>
+Diákként és alkalmazottként, aki hosszú időt tölt a számítógép előtt, fontosnak tartom, hogy foglalkozzunk a fáradtsággal, mielőtt az negatívan befolyásolná a produktivitást. Ez a szoftver egy lehetséges megoldást kínál a szemmozgások nyomon követésére és a felhasználónak adott visszajelzésekre.
 
-</br>
+A leggyakoribb felhasználás ma az autóiparban van, ahol a sofőr fáradtsági szintjét figyelik. A pislogások gyakorisága általában körülbelül 12 pislogás percenként [1].
 
-### Második verzió
-&nbsp;&nbsp;&nbsp;&nbsp;A célkitűzésem a második verziójának megalkotása során az volt, hogy a hibák lekezelésével egy olyan rendszert hozzak létre, ami képes a pislogásokat megbízhatóbban detektálni. Ehhez meg kellett változtatnom a kiindulási alapokat, mert a szemhélyek távolsága nem alkalmas a pislogások megfelelő detektálására. </br>
+### Ipari Felhasználási Esetek
+A rendszert különféle környezetekben lehetne alkalmazni, például a közlekedésben vagy a munkahelyeken. A járművekben, különösen a közlekedési vagy logisztikai szektorban, ez a rendszer a sofőr éberségét figyeli a pislogások és egyéb fáradtsági jelek alapján. Ilyen rendszerek általában a jármű szélvédőjén találhatók, és a felhőn keresztül kapcsolódnak a cég rendszeréhez külső kiértékelés céljából [2].
 
-&nbsp;&nbsp;&nbsp;&nbsp;A továbbfejlesztés során inkább elmentem a szemhélyak közötti területeknek a meghatározásával, ami egy pontosabb képet tud adni jelen funció megvalósításához. Ehhez nem volt másra szükségem csak a korábban meghatározott pontok közötti területeknek a kiszámítására külön-külön. Egy beépített függvényt felhívva egyszerűen meg is lehet oldani ezt ```cv2.contourArea(r_eye_points), cv2.contourArea(l_eye_points)```. Az előző megoldáshoz hasonlóan ezeket az értékeket is historikusan tárolom, hogy legyen viszonyításom pontom a nyitott és a csokutt értékek állapotai között. </br>
+### Jellemzők
 
-&nbsp;&nbsp;&nbsp;&nbsp;Az előző megoldás implementálása esetén mindössszesen csak a hasonlítási értékek megváltoztatásával egy jóval megbízhatóbb rendszert kaptam. Ez a rendszer alaklmas a kacsintások kiszürésére (nem detektálja pislogásnak) és a rövidebb, gyorsabb pislogást is képes detektálni. </br>
-A baloldali szemre vonatkozó kiértékelési értékek az alábbiakban láthatók: </br>
-![Left eye plot](./img/left_plot.png) </br>
+A projekt néhány fő jellemzője a következő:
 
-1. Itt jól látható, hogy a hisztorikus adat átlaga és a tresholddal manipulált értékével jól detektálható a hirtelen lefelé kiugró értékek. </br>
-2. Ennél a résznél megfigyelhető, hogy kamera felé közelítés esetén nagyobb lesz a szem területének az értéke, amit lekövet a rendszer, ezzel minden pislogást dinamikusan lekövet mozgás során. </br>
-3. Itt jól észrevehető, hogy a kamerától való távolodás esetén a határérték nem követi le a szem területének a csökkenését, így a rendszer nem detektálja a pislogást többé (folytonos pislogásnak érzékeli). </br>
+- Valós idejű pislogás érzékelés webkamera segítségével.
+- Fáradtság értékelés a pislogási gyakoriság alapján (átlagosan 12 pislogás percenként [1]).
+- Alap felhasználói felület (UI), amely a pislogások számát és a fáradtsági jelzőket jeleníti meg.
+- Lehetőség további fejlesztésekre, hogy egy kifinomultabb fáradtságfigyelő rendszer alakuljon ki.
 
+### Technológiák
 
-&nbsp;&nbsp;&nbsp;&nbsp;Erre a 3. típusú problémára azt a megoldást találtam ki, hogy távolodás esetén a hisztorikis adat tömbből pop-oljun ki egy elemet, ezzel elérve ugyan azt a hatást, mint a kamera felé közelítés esetén. </br>
-A javított változatnak az értékei a következők: </br>
+A projekt a következő technológiákat használja:
 
-![Left eye plot improved](./img/left_eye_imp.png) </br>
-</br>
+- **Programnyelvek**: Python 3
+- **Könyvtárak**:
+  - OpenCV az arc- és szemdetektáláshoz.
+  - Tkinter a felhasználói felület létrehozásához.
+- **Algoritmusok**: Haar Cascade az arc- és szemdetektáláshoz, kontúralapú elemzés a pislogások érzékelésére.
 
-&nbsp;&nbsp;&nbsp;&nbsp;Ez a megvalósítás verzió még abban különbözik, hogy az adatokat log-oltam a későbbi kielemzés és kiértékelés érdekében a logging-al. Az értékek log-olásának feldolgozásához írtam egy külön plot script-et, ami a log fájlok alapján képes a grafikonokat kirajzolni. </br>
+### Megvalósítási Részletek
 
-&nbsp;&nbsp;&nbsp;&nbsp;A grafikonok élőben való kirajzolása a program futása során látszik debuggolás és jobb megértés érdekében, de több, részletesebb adat megjelenítése és megértése érdekében elengedhetetlen volt egy külön megjelenítési forma is. </br>
+A szoftver valós idejű videót rögzít az eszköz webkameráján keresztül, és az OpenCV-t használja az arcjelzők érzékelésére. Kifejezetten a szemeket követi, és a szemhéjak közötti távolságot számítja ki a pislogások érzékeléséhez. Ez az információ a pislogási gyakoriság monitorozására szolgál, ami a felhasználó fáradtsági szintjeit jelzi.
 
-&nbsp;&nbsp;&nbsp;&nbsp;Végső lépésként pedig beleraktam plusz egy számlálót és a time függvényt, ami figyeli, hogy 60 másodperc alatt megvolt e a legalább 12 pislogás és ha nem akkor jelez a rendszer. A jelzés jelen formájában egy előre kiválasztott mp3 fájl lejátszása (alrm.mp3). </br>
+### Első Verzió
 
-</br>
+<p align="center">
+  <img src="./img/facemash.png" alt="FaceMashDetector" width="400">
+</p>
 
-#### Konklúzió
-&nbsp;&nbsp;&nbsp;&nbsp;A program jól le tudja kezelni a kivételeket, mint például a kamera felé közelítés és távolodás, a gyors pislogást, illetve a kacsintásokat is. A kacsintásokat nem detektálja pislogásnak. Ezáltal a kitűzött feladatomat és célokat elértem. </br>
+1. **Arc- és Szemérzékelés**:
+   - Az OpenCV-ből származó Haar Cascade osztályozókat alkalmazták.
+   - Az arc körüli arcrészletek alapján számítja ki a szemhéjak közötti távolságot.
 
-</br>
+<p align="center">
+  <img src="./img/face_points.png" alt="Arc tájékozódási pontok" width="400">
+</p>
 
-### Kipróbált más megközelítések
-&nbsp;&nbsp;&nbsp;&nbsp;Két másféle megközelítést próbáltam még ki a megvalósításom során. Az egyik egy betanított modell alapján való szem detekdálás. Ebben az esetben a detektálás 70+% pontosságot tudutt elérni, de az ilyan típúsú felismerésből nem voltam képes kinyerni a szem becsukásaához használható mögöttes információkat. </br>
+### Első Pislogás Érzékelő Verzió
 
-&nbsp;&nbsp;&nbsp;&nbsp;A másik megközelítés az előzőhöz nagyon hasonló volt, ahol a detektálást egy általam tanított modellel végeztem volna el, de címkézett adat hiányában nem tudtam megvalósítani az előre betanítást. A valós időben való tanulása esetén pedig nem jól hasznosítható a tudása, mert nagyon sok idő szükséges neki nagyon kis siker eléréséhez is.</br>
+2. **Pislogás Érzékelés**:
+   - A felső és alsó szemhéjak közötti távolságot mérik, hogy érzékeljék a pislogást. Amikor a távolság egy küszöbérték alá csökken, egy pislogást regisztrálnak. Ez a módszer a fáradtságfigyelő kutatások során megfigyelt szemhéjmozgásokon alapul [2].
 
-</br>
+<p align="center">
+  <img src="./img/blinking_charact.png" alt="Pislogás detektálás jellemzése" width="400">
+</p>
 
-### Továbbfejlesztési lehetőségek
-&nbsp;&nbsp;&nbsp;&nbsp;A jelenlegi programomat tovább lehet fejleszteni a következőkkel: </br>
-- A pislogás érzékelésekor is létre lehetne hozni egy hisztorikus tömböt a mégbiztosabb validáláshoz. </br>
-- A pislogás számolásánál figyelembe lehetne venni azt, hogy azért nem érte e el a 12 minimumut, mert ténylegesen elaludt a felhasználó vagy csak folyton nyitvatartja a szemét. </br>
-- A pislogás számlálásnál meg lehetne határozni különböző szinteket, hogy milyen "kategóriába tartozik pl.: túl gyakori pislogás = ébren próbálja tartani magát, de fáradt / ... . </br>
-- A statikusan beírt maszk pontok helyett egy dinamikusabb szem pontjainak megtalálása / szem detektálási módszer használata. </br>
-- 1 arc helyett több különböző arc detektálása, ahol az egyéneknél külön-külön méri a fáradság szintjét. </br>
+   - Egy történeti adatsor tárolja a legutóbbi pislogásokat, és ha a pislogási gyakoriság az átlagos küszöbérték alá esik, a program fáradtsági riasztást vált ki.
 
-</br>
+<p align="center">
+  <img src="./img/eyes_crossed.png" alt="Pislogás érzékeléshez összekulcsolt szemek" width="400">
+</p>
+
+3. **Fáradtságfigyelés**:
+   - A program megszámolja a pislogások számát percenként, és összehasonlítja az átlagos 12 pislogás/perc küszöbértékkel a fáradtság értékeléséhez [1].
+   - Ha a pislogások száma túl alacsony, riasztást vált ki, amely potenciális fáradtságot jelez.
+
+### Első Verzió Problémái
+Bár érvényes eredményeket kaptunk, három problémát észleltünk:
+- **Gyors pislogások**: A rendszer ritkán érzékelte a gyors pislogásokat.
+- **Kacsintás**: Tévesen érzékelte a minimális szemcsukásokat (pl. kacsintást) pislogásnak.
+- **Kamera mozgása**: A pislogási küszöb rögzült, és a rendszer nem érzékelt tovább, ha a kamera előre-hátra mozgott.
+
+### Második Verzió Javításai
+
+A második verzióban a következő módosításokat végezték el:
+
+- A szemhéjak területét mérték a távolságok helyett, kontúrszámításokkal a pontosság érdekében.
+- A pislogási eseményeket most megbízhatóbban érzékelik, még a gyors pislogásokat vagy kacsintásokat is, és a rendszer dinamikusan alkalmazkodik a kamera mozgásához.
+
+<p align="center">
+  <img src="./img/left_plot.png" alt="Bal szem pislogás érzékelési diagram" width="400">
+</p>
+
+- **1**: A történeti adatok és a küszöbértékek világosan mutatják a lefelé irányuló kiugrásokat, amelyek érvényes pislogásokat jeleznek.
+- **2**: Amikor a kamera közelebb kerül a felhasználóhoz, a rendszer alkalmazkodik a nagyobb szemterülethez, biztosítva a megfelelő érzékelést.
+- **3**: A kamerától való eltávolodás korábban érzékelési problémákat okozott, de most a rendszer dinamikusan kezeli a történeti adatokat.
+
+<p align="center">
+  <img src="./img/left_eye_imp.png" alt="Bal szem javított diagram" width="400">
+</p>
+
+Ez a javított verzió sikeresen kezeli az olyan kivételeket, mint:
+- Közeledő vagy távolodó kamera mozgása.
+- Gyors pislogások és kacsintások, amelyek helyesen érzékelhetők vagy figyelmen kívül hagyhatók.
+
+### Riasztások és Számlálók Hozzáadása
+
+A végső lépésként hozzáadtunk egy számlálót és egy időzítő függvényt, amely figyeli, hogy a rendszer 60 másodperc alatt legalább 12 pislogást észlel-e. Ha nem, riasztást vált ki. A riasztás ebben az esetben egy előre kiválasztott MP3 fájl lejátszása, amely akkor szólal meg, ha a felhasználó nem pislogott eleget.
+
+### Más Megközelítések Tesztelése
+
+Két másik megközelítést is kipróbáltunk a megvalósítás során. Az egyik egy betanított modell alapján való szemérzékelést alkalmazott, amely körülbelül 70%-os pontosságot ért el. Azonban nem sikerült elegendő hasznos információt kinyerni a szemcsukásról ebből a módszerből.
+
+A második megközelítés hasonló volt az elsőhöz, ahol én magam próbáltam betanítani a modellt. Azonban címkézett adatok hiányában nem sikerült hatékony előre betanítást végrehajtani. A valós idejű tanulás nem bizonyult hasznosnak, mivel túl sok időre volt szükség a korlátozott eredmények eléréséhez.
+
+### Hibakeresés és UI Frissítések
+
+Ebben a verzióban hozzáadtam valós idejű naplózást az adatelemzéshez. A rendszer naplózza a pislogási eseményeket későbbi grafikon elemzés céljából, és a felhasználói felület dinamikusan jeleníti meg a pislogási gyakoriságot.
+
+## Jövőbeli Fejlesztések
+
+Néhány lehetséges továbbfejlesztési terület:
+
+1. **Pislogás időtartamának elemzése**: A pislogások időtartamának figyelembevétele a fáradtság pontosabb értékelése érdekében.
+
+2. **Ásítás észlelése**: További arckifejezések elemzése az ásítások észlelésére, javítva ezzel a fáradtság monitorozásának pontosságát.
+
+3. **Környezeti beállítások**: A pislogási szokások elemzése a napszak vagy más környezeti tényezők figyelembevételével.
+
+4. **Szemnyitás szintjének osztályozása**: Egy rendszer implementálása, amely osztályozza a szemnyitás szintjeit a különböző fáradtsági állapotok azonosítására.
+
+5. **Többfelhasználós támogatás**: A rendszer lehetővé teheti, hogy több felhasználó fáradtságát egyszerre kövessék nyomon az arcok detektálásával.
 
 ## Hivatkozások
-[1]: https://doi.org/10.1098/rsif.2013.0227 "K.-A. Kwon, R. J. Shipley, M. Edirisinghe, D. G. Ezra, G. Rose, S. M. Best és R. E. Cameron, „National Library of Medicine,” Journal of the Royal Society Interface, %1. kötet10, %1. szám85, p. 20130227, 06 08 2013."
-1: K.-A. Kwon, R. J. Shipley, M. Edirisinghe, D. G. Ezra, G. Rose, S. M. Best és R. E. Cameron, „National Library of Medicine,” Journal of the Royal Society Interface, %1. kötet10, %1. szám85, p. 20130227, 06 08 2013.
 
-[2]: https://ieeexplore.ieee.org/document/8611704 'L. Oliveira, J. S. Cardoso, A. Lourenço and C. Ahlström, "Driver drowsiness detection: a comparison between intrusive and non-intrusive signal acquisition methods," 2018 7th European Workshop on Visual Information Processing (EUVIP), Tampere, Finland, 2018, pp. 1-6, doi: 10.1109/EUVIP.2018.8611704.'
-2: L. Oliveira, J. S. Cardoso, A. Lourenço and C. Ahlström, "Driver drowsiness detection: a comparison between intrusive and non-intrusive signal acquisition methods," 2018 7th European Workshop on Visual Information Processing (EUVIP), Tampere, Finland, 2018, pp. 1-6, doi: 10.1109/EUVIP.2018.8611704.
+1. K.-A. Kwon, R. J. Shipley, M. Edirisinghe, D. G. Ezra, G. Rose, S. M. Best, and R. E. Cameron, "High-speed camera characterization of voluntary eye blinking kinematics," Journal of the Royal Society Interface, vol. 10, no. 85, p. 20130227, 2013. [Link](https://doi.org/10.1098/rsif.2013.0227)
 
-
----------------------------------------------------------------------------------------------------
-
-# English version
-
-## Introduction
-&nbsp;&nbsp;&nbsp;&nbsp;In the process of figuring out my task I aimed to create a program what can be used in real life. With more development it sould be capable to use it in every day of our work and able to integrate it in my own personal life later. </br>
-
-&nbsp;&nbsp;&nbsp;&nbsp;The task I have devised is to write a program that uses a camera of the user device to detect the user's fatigue level. The program uses the detected eye blinking number and the ratio of the open eye to figure it out. </br>
-
-&nbsp;&nbsp;&nbsp;&nbsp;As a student and an employee wo spends a good part of the day in front of the computer, I think it is important to pay attention to the fatigue level of the user. I noticed that I tend to ignore the signs of fatigue and I don't pay attention to them. As the level of fatigue increase, the efficiency of the work decreases, which is something to better to avoid in productivity mode. This is a problem I think many other people have faced, so I think it is important to pay attention to it. </br>
-
-&nbsp;&nbsp;&nbsp;&nbsp;The most common use tuday is in the car industry (logistics or transportations), where the driver's fatigue level is monitored. These cameras and processing units are isially installed on the windsield in a compact form, which are also connected to the company's system via cloud-based links for external alert or evaluation. </br>
-
-
-## The task
-&nbsp;&nbsp;&nbsp;&nbsp;In my case, the software that I invented and will create would detect a face from a live image of a webcam connected directly to the computer. The program will examine the ratio of time spent with open eyes and the frequency of blinks, the number of blinks, which is in average equivalent to 12 blinks/minute  -- <cite>[High-speed camera characterization of voluntary eye blinking kinematics][1]</cite> </br>
-
-
-## Further development opportunities
-&nbsp;&nbsp;&nbsp;&nbsp;In the future, this software can be further developed by taking into account the duration of blinking, which lasts on average 1/3 of a second. In the case of further development, it is possible to examine the norms of blinking behavior different from the time of day or the environment. In addition, the detection of yawning can also be taken into account, or even the use of a classification system that takes into account the size of the eye opening. </br>
-
-&nbsp;&nbsp;&nbsp;&nbsp;With these additional implementations, I think a very accurate system can be obtained, and it would be sufficient to teach the system if the use of the program spread in a small community. </br>
-
-&nbsp;&nbsp;&nbsp;&nbsp;In the case of laptops, the built-in web camera could provide a useful function for training such a system, which could even be a lifesaver if implemented in vehicles. </br>
-
-
-## Implementation conditions
-&nbsp;&nbsp;&nbsp;&nbsp;To implement the system, we need to be aware of the possibilities and limitations for the detection of the face and the eyes. The limitation means that the camera must provide a clear image of the face and eyes, and depending on the integrated functions, they may even require detailed, high-resolution and high frame rate images. </br>
-
-&nbsp;&nbsp;&nbsp;&nbsp;A combination of several methodes are usually used for the detection phase. In this case, the Haar Cascade algorithm, integrated image processing, AdaBoost, ensemble of regression trees, and the Viola-Jones algorithm are used and many others can be used. If someone wants to create a  system that is almost 100% accurate, or systmm-independent, or optimized for specific hardware / in general, then it is worth considering the use of a combination of these methods. </br>
-
-&nbsp;&nbsp;&nbsp;&nbsp;Nowadays, it is not absolutely necessary to carry out these steps and to know the methodology of each in detail for development, because image classification models are publicly available to everyone. Of these, the best known to me are OpenCV and TensorFlow. The advantage of using them is that they have pre-trained classifiers such as face, eye, mouth recognition and more. </br>
-
-&nbsp;&nbsp;&nbsp;&nbsp;When using the face mask, we need to determine which points on the mask are the mouth or the eyes. This can be determined using different techniques, such as directly entering the given point values of the point cloud. This can be useful in the event that we want to get access to specific part of the face and we do not have video material of the faces of many different people to train a model from zero. Manual input can be used to filter out the noise generated by the system's automatic selection. </br>
-
-![Face orientation points](./img/face_points.png) </br>
-
-&nbsp;&nbsp;&nbsp;&nbsp;After obtaining the points located around the eyes, we need to determine the eyelid distances for blinking detection. Understandably, we can determine the difference between blinking or just noise depending on the changes in the eyelid distances. "For this, any number of points on the eye are taken to characterize each blink. To calculate these points, the closed eyes must first be localized based on the first-order difference of the signal and an adaptive threshold. Then, for each detected location, the signal is searched for before and after the valley until it stops growing within a specified value, thus obtaining the points t1 and tx." -- <cite>[Driver drowsiness detection: a comparison between intrusive and non-intrusive signal acquisition methods][2]</cite> </br>
-
-![To characterize the twinkle](./img/blinking_charact.png) </br>
-
-&nbsp;&nbsp;&nbsp;&nbsp;In the case of the software I implement, I use Python 3 with OpenCV and tkinter or one of its other versions. I will use tkinter or another version of it to create the UI, and I will process the topography of the face with OpenCV. In the implementation, I primarily determine the fatigue from the frequency of blinking per minute and display the operation of the process with a simple UI. In addition, I sign for the user within the same UI.
-
-## Megvalósítás
-&nbsp;&nbsp;&nbsp;&nbsp;The final version of the implementation is the [eye_blink_project.py](./src/eye_blink_project_final.py) .</br>
-
-
-
-##
-
-
-
-
-##
+2. L. Oliveira, J. S. Cardoso, A. Lourenço, and C. Ahlström, "Driver drowsiness detection: a comparison between intrusive and non-intrusive signal acquisition methods," 2018 7th European Workshop on Visual Information Processing (EUVIP), Tampere, Finland, 2018. [Link](https://ieeexplore.ieee.org/document/8611704)
