@@ -41,19 +41,13 @@ To set up this project locally, follow these steps:
 
 2. Install dependencies:
    ```bash
-    Copy code
     pip install -r requirements.txt
 
 3. Using the GUI
 -------------
-
 1.  **Run the application**:
-
-    bash
-
-    Copy code
-
-    `python main.py`
+    ```bash
+    python main.py
 
 2.  **Using the GUI**:
 
