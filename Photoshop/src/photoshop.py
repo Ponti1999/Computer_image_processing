@@ -11,7 +11,7 @@ import multiprocessing as mp
 import os
 
 
-PATH = 'Photoshop/img/'
+PATH = os.path.join(os.path.dirname(os.getcwd()), 'img')
 WINDOW_WIDTH = 1100
 WINDOW_HIGH = 580
 IMAGE_LOAD_DIVIDER = 1.5
@@ -165,7 +165,7 @@ class App(customtkinter.CTk):
                 self.image_choice.configure(values=os.listdir(PATH))
             else:
                 self.image_file = self.image_choice.get()
-                self.image_open = Image.open(PATH + self.image_file)
+                self.image_open = Image.open(os.path.join(PATH, self.image_file))
             if self.image_entry_x.get() == "" or self.image_entry_y.get() == "":
                 if self.image_open.size[0] > 1500:
                     self.image_entry_x.insert(0, self.image_open.size[0]/3)
@@ -174,7 +174,7 @@ class App(customtkinter.CTk):
                     self.image_entry_x.insert(0, self.image_open.size[0]/IMAGE_LOAD_DIVIDER)
                     self.image_entry_y.insert(0, self.image_open.size[1]/IMAGE_LOAD_DIVIDER)
 
-            self.image_resized = self.image_open.resize((int(float(self.image_entry_x.get())), int(float(self.image_entry_y.get()))), Image.ANTIALIAS)
+            self.image_resized = self.image_open.resize((int(float(self.image_entry_x.get())), int(float(self.image_entry_y.get()))), Image.Resampling.LANCZOS)
             self.image = ImageTk.PhotoImage(self.image_resized)
             self.main_display.configure(anchor="center", image=self.image)
             self.delete_image_size()
@@ -188,7 +188,7 @@ class App(customtkinter.CTk):
 
     def monitor_performance(self, func, gray:bool):
         def wrapper():
-            img = img_as_ubyte(io.imread(PATH + self.image_choice.get(), as_gray=gray))
+            img = img_as_ubyte(io.imread(os.path.join(PATH, self.image_choice.get()), as_gray=gray))
             start_time = time.time()
             process = psutil.Process()
             mem_start = process.memory_info().rss / 1024 / 1024
@@ -218,7 +218,7 @@ class App(customtkinter.CTk):
         self.original_and_equalized(img, self.img_negate_filter, '_negate.png')
 
         self.plot_image(self.img_negate_filter, image_name='_'.join([self.image_file_name,'negate_only.png']))
-        self.display_image_function(''.join([PATH, self.image_file_name, '_negate.png']))
+        self.display_image_function(os.path.join(PATH, f"{self.image_file_name}_negate.png"))
 
 
     def gamma_correction_filter(self, img):
@@ -537,6 +537,7 @@ if __name__ == "__main__":
     # print('0', os.listdir("../Computer_image_processing/Photoshop/img"))
     # print('1', os.listdir("Photoshop/img"))
     # print('2', os.listdir("Photoshop/"))
+    print(f'Result: {PATH}')
     FILES_IMAGES = os.listdir(PATH)
     # FILES_IMAGES = os.listdir("Photoshop/img")
     # FILES_IMAGES = [item.split('.', 1)[0] for item in FILES_IMAGES]
